@@ -1,5 +1,5 @@
-import { TenantStorefront } from "@/components/storefront/tenant-storefront";
-import { getTenantStoreData } from "@/lib/tenants";
+import { getTenantStoreData } from "@/features/catalog/api/catalog.api";
+import { TenantStorefront } from "@/features/storefront/pages/tenant-storefront";
 
 export default async function HomePage() {
   const store = await getTenantStoreData("rubi");

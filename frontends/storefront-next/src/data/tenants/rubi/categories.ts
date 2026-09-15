@@ -1,4 +1,4 @@
-import type { StoreCategory } from "@/types/storefront";
+import type { StoreCategory } from "@/features/catalog/types/storefront";
 
 const TENANT_ID = "rubi-id";
 const GOLD_IMAGE = "/images/tenants/rubi/products/joyas-oro.webp";

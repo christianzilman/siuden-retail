@@ -1,10 +1,11 @@
+import { tenants } from "@/config/tenants";
+import { getTenantStoreData } from "@/features/catalog/api/catalog.api";
+import { CategoryStorefront } from "@/features/catalog/pages/category-storefront";
+import { findCategoryByRoute } from "@/features/catalog/utils/categories";
+import { TenantStorefront } from "@/features/storefront/pages/tenant-storefront";
+import { getTenantBySlug } from "@/features/tenant/utils/tenants";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CategoryStorefront } from "@/components/storefront/category-storefront";
-import { TenantStorefront } from "@/components/storefront/tenant-storefront";
-import { tenants } from "@/config/tenants";
-import { findCategoryByRoute } from "@/lib/categories";
-import { getTenantBySlug, getTenantStoreData } from "@/lib/tenants";
 
 type StorefrontRouteProps = {
   params: Promise<{ segments: string[] }>;

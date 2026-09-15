@@ -1,5 +1,5 @@
 import type { Services } from "@/services/contracts";
-import { createHttpServices } from "@/services/http-services";
+import { createHttpServices } from "@/services/create-http-services";
 import { MockRepository } from "@/services/mock-repository";
 
 export function createMockServices(delayMs = 90, repository = new MockRepository(delayMs)): Services {
@@ -77,8 +77,3 @@ export function createMockServices(delayMs = 90, repository = new MockRepository
 export const services = import.meta.env.VITE_USE_MOCKS === "true"
   ? createMockServices()
   : createHttpServices();
-
-export { MockRepository, MockServiceError } from "@/services/mock-repository";
-export { DEMO_CREDENTIALS, MOCK_DATA_VERSION, MOCK_STORAGE_KEY } from "@/mocks/seed";
-export * from "@/domain/types";
-export * from "@/services/contracts";

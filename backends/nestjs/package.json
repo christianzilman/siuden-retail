@@ -6,6 +6,7 @@
   "description": "API administrativa de Siuden Retail para Rubi Joyería",
   "license": "UNLICENSED",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",

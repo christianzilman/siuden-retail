@@ -1,34 +1,18 @@
-import type {
-  AuthSession,
-  Category,
-  Customer,
-  CustomerAddress,
-  CustomerStatus,
-  DashboardSummary,
-  InventoryBalance,
-  InventoryItem,
-  InventoryStatus,
-  MediaAsset,
-  PaginatedResult,
-  PermissionCode,
-  Product,
-  ProductImage,
-  ProductOption,
-  ProductStatus,
-  ProductVariant,
-  Sale,
-  StockLocation,
-  StockMovement,
-  StockMovementItem,
-  StockMovementRecord,
-  StoreContactChannel,
-  StoreProfile,
-  StoreTheme,
-  StorefrontSettings,
-  Tenant,
-  TenantFeatureCode,
-  User,
-} from "@/domain/types";
+import type { AuthSession, PermissionCode, Tenant, TenantFeatureCode, User } from "@/features/auth/types/auth";
+import type { LoginInput } from "@/features/auth/types/contracts";
+import type { Category } from "@/features/categories/types/categories";
+import type { CategoryFilters, CategoryOrderInput, CreateCategoryInput, UpdateCategoryInput } from "@/features/categories/types/contracts";
+import type { CreateCustomerInput, CustomerFilters, UpdateCustomerInput } from "@/features/customers/types/contracts";
+import type { Customer, CustomerAddress, CustomerStatus } from "@/features/customers/types/customers";
+import type { DashboardSummary } from "@/features/dashboard/types/dashboard";
+import type { InventoryAdjustmentInput, InventoryAdjustmentResult, InventoryFilters, StockMovementFilters } from "@/features/inventory/types/contracts";
+import type { InventoryBalance, InventoryItem, InventoryStatus, StockLocation, StockMovement, StockMovementItem, StockMovementRecord } from "@/features/inventory/types/inventory";
+import type { BulkPriceAdjustmentInput, BulkPriceAdjustmentResult, CreateProductInput, PriceAdjustmentPreviewItem, ProductCoreInput, ProductFilters, ProductImageInput, ProductMutationResult, ProductOptionInput, ProductVariantInput, UpdateProductInput } from "@/features/products/types/contracts";
+import type { Product, ProductImage, ProductOption, ProductStatus, ProductVariant } from "@/features/products/types/products";
+import type { CancelSaleInput, CancelSaleResult, ConfirmSaleInput, ConfirmSaleResult, SaleFilters } from "@/features/sales/types/contracts";
+import type { Sale } from "@/features/sales/types/sales";
+import type { StoreContactChannelInput, UpdateStorefrontSettingsInput, UpdateStoreProfileInput, UpdateStoreThemeInput } from "@/features/settings/types/contracts";
+import type { StoreContactChannel, StorefrontSettings, StoreProfile, StoreTheme } from "@/features/settings/types/settings";
 import {
   createMockSeed,
   DEMO_CREDENTIALS,
@@ -36,41 +20,8 @@ import {
   MOCK_STORAGE_KEY,
   type MockDatabase,
 } from "@/mocks/seed";
-import type {
-  BulkPriceAdjustmentInput,
-  BulkPriceAdjustmentResult,
-  CancelSaleInput,
-  CancelSaleResult,
-  CategoryFilters,
-  CategoryOrderInput,
-  ConfirmSaleInput,
-  ConfirmSaleResult,
-  CreateCategoryInput,
-  CreateCustomerInput,
-  CreateProductInput,
-  CustomerFilters,
-  InventoryAdjustmentInput,
-  InventoryAdjustmentResult,
-  InventoryFilters,
-  LoginInput,
-  PriceAdjustmentPreviewItem,
-  ProductCoreInput,
-  ProductFilters,
-  ProductImageInput,
-  ProductMutationResult,
-  ProductOptionInput,
-  ProductVariantInput,
-  SaleFilters,
-  ServiceErrorCode,
-  StockMovementFilters,
-  StoreContactChannelInput,
-  UpdateCategoryInput,
-  UpdateCustomerInput,
-  UpdateProductInput,
-  UpdateStorefrontSettingsInput,
-  UpdateStoreProfileInput,
-  UpdateStoreThemeInput,
-} from "@/services/contracts";
+import type { MediaAsset, PaginatedResult } from "@/types/common";
+import type { ServiceErrorCode } from "@/types/service";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;
@@ -1449,13 +1400,13 @@ export class MockRepository {
   private themeView(state: MockDatabase, theme: StoreTheme): StoreTheme {
     const logo = theme.logoAssetId
       ? state.mediaAssets.find(
-          (asset) => asset.id === theme.logoAssetId && asset.tenantId === theme.tenantId && asset.status === "ACTIVE",
-        )
+        (asset) => asset.id === theme.logoAssetId && asset.tenantId === theme.tenantId && asset.status === "ACTIVE",
+      )
       : null;
     const favicon = theme.faviconAssetId
       ? state.mediaAssets.find(
-          (asset) => asset.id === theme.faviconAssetId && asset.tenantId === theme.tenantId && asset.status === "ACTIVE",
-        )
+        (asset) => asset.id === theme.faviconAssetId && asset.tenantId === theme.tenantId && asset.status === "ACTIVE",
+      )
       : null;
     return { ...theme, logoUrl: logo?.url ?? theme.logoUrl, faviconUrl: favicon?.url ?? theme.faviconUrl };
   }
@@ -1634,8 +1585,8 @@ export class MockRepository {
   private resolveLocation(state: MockDatabase, tenantId: string, requestedId?: string): StockLocation {
     const location = requestedId
       ? state.stockLocations.find(
-          (candidate) => candidate.id === requestedId && candidate.tenantId === tenantId && candidate.enabled,
-        )
+        (candidate) => candidate.id === requestedId && candidate.tenantId === tenantId && candidate.enabled,
+      )
       : state.stockLocations.find((candidate) => candidate.tenantId === tenantId && candidate.enabled && candidate.isDefault);
     if (!location) fail("NOT_FOUND", "No se encontró una ubicación de stock habilitada.");
     return location;

@@ -4,8 +4,8 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, map } from 'rxjs';
 import { Prisma } from '@prisma/client';
+import { Observable, map } from 'rxjs';
 
 function jsonSafe(value: unknown): unknown {
   if (typeof value === 'bigint') return value.toString();

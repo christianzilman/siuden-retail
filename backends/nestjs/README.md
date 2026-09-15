@@ -2,6 +2,68 @@
 
 API administrativa multi-tenant para Rubi Joyería. Usa NestJS, Prisma y la base MySQL 8 definida en `database/init/001_initial_schema-siuden-retail-mysql8-schema.sql`.
 
+## Arquitectura y organización
+
+El backend sigue la separación por dominio y responsabilidad usada como referencia en Cajora, adaptada a NestJS. Conserva sus tecnologías, contratos HTTP y reglas transaccionales. Los decorators de Nest definen las rutas y los DTOs con `class-validator` validan la entrada.
+
+```text
+src/
+├── main.ts                         # Arranque, CORS, pipes, filtros y Swagger
+├── app.module.ts                   # Composición y guards globales
+├── config/
+│   └── environment.validation.ts
+├── infrastructure/prisma/          # PrismaModule y PrismaService
+├── common/
+│   ├── dto/                        # Parámetros y paginación de entrada
+│   ├── helpers/                    # Adaptación de resultados paginados
+│   ├── filters/
+│   ├── interceptors/
+│   └── utils/
+└── modules/
+    ├── accounts/
+    ├── auth/
+    ├── categories/
+    ├── customers/
+    ├── dashboard/
+    ├── health/
+    ├── inventory/
+    ├── products/
+    ├── purchases/
+    ├── sales/
+    ├── store/
+    ├── storefront-auth/
+    ├── suppliers/
+    └── users/
+prisma/                             # Schema y seeds existentes
+test/                               # Pruebas de composición entre módulos
+```
+
+Cada dominio tiene un archivo `<dominio>.module.ts` y solamente las carpetas que necesita:
+
+| Carpeta | Responsabilidad |
+| --- | --- |
+| `controllers/` | Entrada HTTP, permisos, Swagger y delegación al servicio. Una clase por archivo. |
+| `services/` | Casos de uso, persistencia Prisma y transacciones. |
+| `dto/` | Clases de entrada y validación con decorators. |
+| `validations/` | Reglas de negocio independientes de consultas, como restricciones de roles. |
+| `types/` | Contratos internos e identidad autenticada. |
+| `helpers/` | Funciones y transformaciones del dominio, incluidos helpers transaccionales de stock. |
+| `guards/`, `decorators/` | Autorización y metadata propias de autenticación. |
+
+Flujo habitual:
+
+```text
+Ruta Nest + guards → DTO + ValidationPipe → controlador → servicio
+                                                        ↓
+                                        reglas/helpers + Prisma → MySQL
+```
+
+Los servicios reciben `PrismaService` por inyección. Los casos críticos mantienen una sola transacción y pasan su `tx` a los helpers. No se introducen repositorios genéricos ni wrappers que dupliquen Prisma.
+
+Ejemplo: para modificar productos, empezar por `src/modules/products/controllers/products.controller.ts`, revisar `dto/product.dto.ts` y continuar en `services/products.service.ts`. Las variantes tienen su propio DTO y controlador dentro del mismo módulo. Categorías y proveedores tienen módulos independientes. La lectura pública de la tienda vive en `src/modules/store/services/storefront-catalog.service.ts`; los cambios administrativos siguen en `store.service.ts`.
+
+Ver el [mapa de módulos](src/modules/README.md) y las [instrucciones obligatorias de desarrollo](AGENTS.md).
+
 ## Preparación
 
 1. La base existente ya tiene aplicado por completo el SQL inicial. En una instalación nueva, aplicarlo una sola vez sobre una base MySQL 8 vacía.
@@ -40,7 +102,7 @@ No debe ejecutarse `prisma migrate dev` contra la base existente: el SQL inicial
 
 `POST /api/v1/auth/login` recibe `email`, `password` y opcionalmente `tenantId`. El JWT contiene la cuenta, el tenant, el rol y sus permisos; además se entrega en la cookie segura `HttpOnly` `siuden_admin_access_token` para el frontend administrativo. Un `PLATFORM_ADMIN` puede iniciar sesión indicando cualquiera de los tenants cuyas cuentas administra. `GET /api/v1/auth/me` restaura la sesión y `POST /api/v1/auth/logout` elimina la cookie. Los controladores operativos nunca aceptan un tenant libre por header o body: toman `tenantId` del token y todos los accesos operativos lo incluyen en su filtro.
 
-Todos los endpoints salvo login y health requieren `Authorization: Bearer <token>`. Swagger está disponible en `/docs`.
+Los endpoints administrativos protegidos aceptan `Authorization: Bearer <token>` o la cookie administrativa. Health, login, catálogo público y el controlador de autenticación del storefront tienen excepciones explícitas con `@Public()`. La sesión del storefront se verifica en su servicio con su propia cookie; esas excepciones no habilitan acceso administrativo. Swagger está disponible en `/docs`.
 
 ## Endpoints principales
 
@@ -108,5 +170,30 @@ Las tablas SaaS de facturación, configuración visual avanzada, carritos y pedi
 - La anulación no borra el ledger: marca el movimiento original como `REVERSED` y crea `SALE_REVERSAL`.
 - Una compra creada queda `ORDERED`; `/:id/receive` recibe todo lo pendiente, registra `PURCHASE` y actualiza saldos.
 - Los números documentales se toman con bloqueo de fila y las operaciones de stock usan transacciones `SERIALIZABLE`.
-- 
 ## Reglas de equipo
+
+1. Leer [AGENTS.md](AGENTS.md) antes de implementar y ubicar el módulo propietario.
+2. Agregar o modificar el DTO de entrada y las reglas del dominio.
+3. Implementar el caso de uso en su servicio conservando tenancy y transacciones.
+4. Conectar el controlador con decorators de permisos y Swagger; registrar nuevos providers/controladores en el módulo y módulos nuevos en `AppModule`.
+5. Reutilizar providers mediante `imports`/`exports` de Nest. Los imports de DTOs y clases inyectables deben existir en runtime para conservar la metadata de decorators.
+6. Agregar pruebas de los comportamientos modificados y actualizar este README cuando cambien endpoints o arquitectura.
+
+No cambiar el contrato HTTP como efecto secundario de mover archivos. `src/common` contiene responsabilidades transversales; las reglas comerciales permanecen en su dominio. Los archivos de configuración y seeds continúan en sus ubicaciones originales.
+
+## Verificación
+
+Desde `backends/nestjs`:
+
+```bash
+pnpm prisma:validate
+pnpm prisma:generate
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm test --runInBand
+```
+
+`typecheck` incluye las pruebas; `build` genera producción excluyendo `test/` y `*.spec.ts`. Las pruebas unitarias viven junto al código. `test/module-wiring.spec.ts` ensambla los módulos reales con un doble de Prisma y comprueba rutas Swagger, DTOs y permisos; no requiere MySQL ni ejecuta seeds. Las pruebas de catálogo público verifican aislamiento por tenant y tiendas no publicadas; las de usuarios comprueban las restricciones de roles.
+
+En Windows, una API en ejecución puede mantener bloqueado `query_engine-windows.dll.node` y causar `EPERM` durante `prisma generate`. Liberar el proceso que usa ese cliente antes de repetir la generación. No regenerar con otro modo de motor como solución improvisada ni detener procesos ajenos sin coordinación. La validación del schema y las pruebas con dobles no equivalen a una prueba de integración de transacciones contra MySQL.

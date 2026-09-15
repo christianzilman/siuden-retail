@@ -1,8 +1,13 @@
-import { useMemo, useState, type ComponentType, type CSSProperties } from "react";
+import { Button } from "@/components/ui/button";
+import { useLogoutMutation, usePermission, useSessionQuery, useTenantFeature } from "@/features/auth/hooks/use-auth";
+import type { PermissionCode, TenantFeatureCode } from "@/features/auth/types/auth";
+import { useResetDemoMutation } from "@/features/demo/hooks/use-demo";
+import { useStoreQueries } from "@/features/settings/hooks/use-settings";
+import { cn } from "@/lib/utils";
 import {
   ArchiveRestore,
-  Building2,
   Boxes,
+  Building2,
   ChevronRight,
   ContactRound,
   ExternalLink,
@@ -22,18 +27,8 @@ import {
   Warehouse,
   X,
 } from "lucide-react";
+import { useMemo, useState, type ComponentType, type CSSProperties } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  useLogoutMutation,
-  usePermission,
-  useResetDemoMutation,
-  useSessionQuery,
-  useStoreQueries,
-  useTenantFeature,
-} from "@/hooks/use-services";
-import type { PermissionCode, TenantFeatureCode } from "@/domain/types";
 
 type NavigationItem = {
   label: string;

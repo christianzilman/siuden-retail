@@ -1,36 +1,25 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { AccountsModule } from './accounts/accounts.module';
-import { AuthModule } from './auth/auth.module';
-import { GlobalAdminGuard } from './auth/guards/global-admin.guard';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from './auth/guards/permissions.guard';
-import { CatalogModule } from './catalog/catalog.module';
-import { CustomersModule } from './customers/customers.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { HealthController } from './health.controller';
-import { InventoryModule } from './inventory/inventory.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { PurchasesModule } from './purchases/purchases.module';
-import { SalesModule } from './sales/sales.module';
-import { StorefrontAuthModule } from './storefront-auth/storefront-auth.module';
-import { StoreModule } from './store/store.module';
-import { UsersModule } from './users/users.module';
-
-function validateEnvironment(
-  config: Record<string, unknown>,
-): Record<string, unknown> {
-  for (const key of ['DATABASE_URL', 'JWT_SECRET', 'ADMIN_FRONTEND_URL']) {
-    if (typeof config[key] !== 'string' || config[key].length === 0) {
-      throw new Error(`La variable de entorno ${key} es obligatoria`);
-    }
-  }
-  if ((config.JWT_SECRET as string).length < 32) {
-    throw new Error('JWT_SECRET debe tener al menos 32 caracteres');
-  }
-  return config;
-}
+import { validateEnvironment } from './config/environment.validation';
+import { PrismaModule } from './infrastructure/prisma/prisma.module';
+import { AccountsModule } from './modules/accounts/accounts.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { GlobalAdminGuard } from './modules/auth/guards/global-admin.guard';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from './modules/auth/guards/permissions.guard';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { HealthModule } from './modules/health/health.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { ProductsModule } from './modules/products/products.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { StoreModule } from './modules/store/store.module';
+import { StorefrontAuthModule } from './modules/storefront-auth/storefront-auth.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -42,7 +31,10 @@ function validateEnvironment(
     PrismaModule,
     AuthModule,
     AccountsModule,
-    CatalogModule,
+    ProductsModule,
+    CategoriesModule,
+    SuppliersModule,
+    HealthModule,
     CustomersModule,
     DashboardModule,
     InventoryModule,
@@ -52,7 +44,6 @@ function validateEnvironment(
     StorefrontAuthModule,
     StoreModule,
   ],
-  controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },

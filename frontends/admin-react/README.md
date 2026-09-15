@@ -46,10 +46,11 @@ El flujo de lectura y mutación en modo API es:
 
 ```text
 Componente React
-→ hook de TanStack Query (`src/hooks/use-services.ts`)
-→ contratos (`src/services/contracts.ts`)
+→ hook de TanStack Query (`src/features/<modulo>/hooks/`)
+→ contratos del módulo (`src/features/<modulo>/types/contracts.ts`)
 → composición de servicios (`src/services/index.ts`)
-→ adaptador Axios (`src/services/http-services.ts`)
+→ API del módulo (`src/features/<modulo>/api/`)
+→ cliente Axios compartido (`src/services/http-services.ts`)
 → API NestJS
 ```
 
@@ -59,7 +60,48 @@ Las pantallas no importan datos simulados directamente. Las query keys comercial
 
 ### Integración progresiva con NestJS
 
-`src/services/http-services.ts` implementa todos los contratos del administrador. `src/services/index.ts` solo crea el repositorio mock cuando `VITE_USE_MOCKS=true`; en modo API no existe fallback silencioso a datos locales.
+Cada archivo `src/features/<modulo>/api/<modulo>.api.ts` implementa el contrato de su módulo. `src/services/create-http-services.ts` los conecta a una única instancia de Axios, configurada en `http-services.ts` con URL base, cookies y normalización de errores. `src/services/index.ts` solo crea el repositorio mock cuando `VITE_USE_MOCKS=true`; en modo API no existe fallback silencioso a datos locales.
+
+## Organización por funcionalidades
+
+```text
+src/
+├── app/                 # Providers, rutas y protección de acceso
+├── features/
+│   ├── accounts/
+│   ├── auth/
+│   ├── categories/
+│   ├── customers/
+│   ├── dashboard/
+│   ├── demo/
+│   ├── inventory/
+│   ├── pos/
+│   ├── products/
+│   ├── sales/
+│   └── settings/
+├── components/          # Layout y UI compartida
+├── services/            # Transporte, composición y repositorio mock
+├── mocks/               # Seed local
+├── types/               # Paginación, fechas y contratos transversales
+└── lib/                 # Formatos, errores y claves de caché
+```
+
+Dentro de cada funcionalidad se crean solamente las carpetas necesarias:
+
+- `pages/`: pantallas conectadas desde React Router, con carga diferida por página.
+- `components/`: formularios, diálogos y secciones propios del módulo.
+- `hooks/`: consultas, mutaciones y estado de interacción.
+- `api/`: endpoints y adaptación de los payloads del módulo.
+- `types/`: entidades, contratos y tipos de formularios.
+- `validations/`: esquemas Zod, sin dependencias de componentes React.
+- `utils/`: transformaciones y helpers del módulo.
+- `store/`: borrador Zustand del POS.
+
+Por ejemplo, para cambiar la creación de productos: la pantalla está en `features/products/pages/product-form-page.tsx`, las validaciones en `features/products/validations/products.schema.ts`, las mutaciones en `features/products/hooks/use-products.ts` y las peticiones en `features/products/api/products.api.ts`.
+
+Importar directamente desde el módulo propietario. Los componentes consumen hooks; los hooks consumen los servicios seleccionados por `services/index.ts`. Las APIs reciben el cliente HTTP y dependen de su propio contrato. La composición global no debe acumular reglas de negocio. Los tipos entre módulos se importan con `import type`; las utilidades y validaciones no deben depender de páginas. Los helpers compartidos de ventas se reutilizan desde el POS.
+
+Conservar las query keys comerciales con el tenant autenticado, la invalidación de inventario después de ventas y la alternativa mock al agregar operaciones. No crear carpetas vacías ni copiar componentes compartidos para cumplir el esquema.
 
 La ruta `/accounts` aparece únicamente para `PLATFORM_ADMIN`, lista las cuentas reales y crea cuenta, tenant, roles y propietario mediante `POST /api/v1/accounts`.
 

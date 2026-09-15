@@ -3,25 +3,15 @@ import {
   RUBI_CATEGORY_CONTENT,
   RUBI_PRODUCT_CONTENT,
 } from "@/content/rubi";
-import type {
-  Account,
-  AccountMember,
-  Category,
-  Customer,
-  InventoryBalance,
-  MediaAsset,
-  Product,
-  Role,
-  Sale,
-  StockLocation,
-  StockMovementRecord,
-  StoreContactChannel,
-  StoreProfile,
-  StoreTheme,
-  StorefrontSettings,
-  Tenant,
-  User,
-} from "@/domain/types";
+import type { Account, AccountMember } from "@/features/accounts/types/accounts";
+import type { Role, Tenant, User } from "@/features/auth/types/auth";
+import type { Category } from "@/features/categories/types/categories";
+import type { Customer } from "@/features/customers/types/customers";
+import type { InventoryBalance, StockLocation, StockMovementRecord } from "@/features/inventory/types/inventory";
+import type { Product } from "@/features/products/types/products";
+import type { Sale } from "@/features/sales/types/sales";
+import type { StoreContactChannel, StoreProfile, StoreTheme, StorefrontSettings } from "@/features/settings/types/settings";
+import type { MediaAsset } from "@/types/common";
 
 export const MOCK_DATA_VERSION = 3;
 export const MOCK_STORAGE_KEY = "siuden-retail:admin:mock-database";
@@ -418,30 +408,30 @@ export function createMockSeed(): MockDatabase {
     return quantityDelta === 0
       ? []
       : [
-          {
-            id: indexedId("f3", index),
-            tenantId: RUBI_TENANT_ID,
-            stockMovementId: initialMovementId,
-            productVariantId: balance.productVariantId,
-            quantityDelta,
-            unitCost: null,
-            createdAt: isoMinutesAgo(120),
-          },
-        ];
+        {
+          id: indexedId("f3", index),
+          tenantId: RUBI_TENANT_ID,
+          stockMovementId: initialMovementId,
+          productVariantId: balance.productVariantId,
+          quantityDelta,
+          unitCost: null,
+          createdAt: isoMinutesAgo(120),
+        },
+      ];
   });
   const saleMovementItems = saleItems.flatMap((item, index) =>
     item.productVariantId
       ? [
-          {
-            id: indexedId("f4", index),
-            tenantId: RUBI_TENANT_ID,
-            stockMovementId: saleMovementId,
-            productVariantId: item.productVariantId,
-            quantityDelta: -item.quantity,
-            unitCost: null,
-            createdAt: soldAt,
-          },
-        ]
+        {
+          id: indexedId("f4", index),
+          tenantId: RUBI_TENANT_ID,
+          stockMovementId: saleMovementId,
+          productVariantId: item.productVariantId,
+          quantityDelta: -item.quantity,
+          unitCost: null,
+          createdAt: soldAt,
+        },
+      ]
       : [],
   );
 

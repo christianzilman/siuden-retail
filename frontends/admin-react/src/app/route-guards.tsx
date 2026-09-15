@@ -1,9 +1,9 @@
-import { LoaderCircle, LockKeyhole } from "lucide-react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { usePermission, useSessionQuery, useTenantFeature } from "@/hooks/use-services";
-import type { PermissionCode, TenantFeatureCode } from "@/domain/types";
+import { usePermission, useSessionQuery, useTenantFeature } from "@/features/auth/hooks/use-auth";
+import type { PermissionCode, TenantFeatureCode } from "@/features/auth/types/auth";
+import { LoaderCircle, LockKeyhole } from "lucide-react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export function ProtectedRoute() {
   const session = useSessionQuery();

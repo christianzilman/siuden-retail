@@ -1,4 +1,4 @@
-import type { TenantConfig } from "@/types/tenant";
+import type { TenantConfig } from "@/features/tenant/types/tenant";
 
 export const rubiTenant: TenantConfig = {
   id: "rubi-id",
