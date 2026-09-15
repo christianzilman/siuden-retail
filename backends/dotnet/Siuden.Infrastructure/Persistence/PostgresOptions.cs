@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siuden.Infrastructure.Persistence
+namespace Siuden.Infrastructure.Persistence;
+
+public class PostgresOptions
 {
-    internal class PostgresOptions
-    {
-    }
+    public string ConnectionString { get; set; }
 }
