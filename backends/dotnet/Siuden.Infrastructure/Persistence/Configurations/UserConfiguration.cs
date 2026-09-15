@@ -23,6 +23,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(user => user.Email)
             .IsUnique();
+        // más adelante
+        //builder.HasIndex(user => new
+        //{
+        //    user.TenantId,
+        //    user.Email
+        //}).IsUnique();
 
         builder.Property(user => user.PasswordHash)
             .IsRequired();

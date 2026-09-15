@@ -16,7 +16,7 @@ public class User
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public bool IsActive { get; set; }
-    public DateTime CreateAt { get; set; }
-    public DateTime UpdateAt { get; set; }
+    public DateTime CreateAt { get; set; } = DateTime.Now;
+    public DateTime? UpdateAt { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = [];
 }
