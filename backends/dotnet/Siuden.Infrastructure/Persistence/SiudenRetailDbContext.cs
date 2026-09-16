@@ -15,8 +15,18 @@ public class SiudenRetailDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Role> Roles => Set<Role>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<AccountMember> AccountMembers => Set<AccountMember>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVarient> ProductVarients => Set<ProductVarient>();
+    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

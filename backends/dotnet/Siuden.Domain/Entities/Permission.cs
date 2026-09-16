@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace Siuden.Domain.Entities;
 
-public class Role: AuditableEntity<Guid>
+public class Permission: AuditableEntity<Guid>
 {
     public string Code { get; set; }
-    public string Name { get; set; }
     public string Description { get; set; }
-    public ICollection<AccountMember> AccountMembers { get; set; } = [];
     public ICollection<RolePermission> RolePermissions { get; set; } = [];
 }

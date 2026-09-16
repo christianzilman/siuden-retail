@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Siuden.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,16 +8,12 @@ using System.Threading.Tasks;
 
 namespace Siuden.Domain.Entities;
 
-public class User
+public class User: AuditableEntity<Guid>
 {
-    public Guid Id { get; set; }
-    public Guid TenantId { get; set; }
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public bool IsActive { get; set; }
-    public DateTime CreateAt { get; set; } = DateTime.Now;
-    public DateTime? UpdateAt { get; set; }
-    public ICollection<UserRole> UserRoles { get; set; } = [];
+    public UserStatusEnum Status { get; set; }
+    public DateTime EmailVerifiedAt { get; set; }
+    public ICollection<AccountMember> AccountMembers { get; set; } = [];
+    public ICollection<Customer> Customers { get; set; } = [];
 }

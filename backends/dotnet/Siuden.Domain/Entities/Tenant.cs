@@ -1,0 +1,20 @@
+﻿using Siuden.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Siuden.Domain.Entities;
+
+public class Tenant: AuditableEntity<Guid>
+{
+    public string Name { get; set; }
+    public string Slug { get; set; }
+    public TenantStatusEnum Status { get; set; }
+    public Guid AccountId { get; set; }
+    public Account Account { get; set; } = null!;
+    public ICollection<Customer> Customers { get; set; } = [];
+    public ICollection<Product> Products { get; set; } = [];
+    public ICollection<Category> Categories { get; set; } = [];
+}

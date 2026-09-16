@@ -21,8 +21,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(255)
             .IsRequired();
 
-        builder.HasIndex(user => user.Email)
-            .IsUnique();
+        //builder.HasIndex(user => user.Email)
+        //    .IsUnique();
         // más adelante
         //builder.HasIndex(user => new
         //{
@@ -31,14 +31,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         //}).IsUnique();
 
         builder.Property(user => user.PasswordHash)
-            .IsRequired();
-
-        builder.Property(user => user.FirstName)
-            .HasMaxLength(250)
-            .IsRequired();
-
-        builder.Property(user => user.LastName)
-            .HasMaxLength(250)
             .IsRequired();
     }
 }

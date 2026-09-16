@@ -9,19 +9,14 @@ using System.Threading.Tasks;
 
 namespace Siuden.Infrastructure.Persistence.Configurations;
 
-public class RoleConfiguration : IEntityTypeConfiguration<Role>
+public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
-    public void Configure(EntityTypeBuilder<Role> builder)
+    public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.ToTable("Roles");
-
+        builder.ToTable("Permissions");
         builder.HasKey(x => x.Id);
 
-        builder.Property(role => role.Name)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(role => role.Code)
+        builder.Property(x => x.Code)
             .HasMaxLength(200)
             .IsRequired();
     }
