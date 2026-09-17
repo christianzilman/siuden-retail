@@ -1,6 +1,72 @@
 @Siuden.Api_HostAddress = http://localhost:5112
+@TenantSlug = rubi
+@AccessToken = replace-with-access-token
 
-GET {{Siuden.Api_HostAddress}}/weatherforecast/
+GET {{Siuden.Api_HostAddress}}/api/tenants/{{TenantSlug}}
 Accept: application/json
 
 ###
+
+POST {{Siuden.Api_HostAddress}}/api/tenants/{{TenantSlug}}/customers
+Content-Type: application/json
+
+{
+  "firstName": "Cliente",
+  "lastName": "Prueba",
+  "email": "cliente@example.com",
+  "phone": null,
+  "password": "Rubi2026!",
+  "passwordConfirmation": "Rubi2026!"
+}
+
+###
+
+POST {{Siuden.Api_HostAddress}}/api/tenants/{{TenantSlug}}/auth/customer/login
+Content-Type: application/json
+
+{
+  "email": "cliente@example.com",
+  "password": "Rubi2026!"
+}
+
+###
+
+POST {{Siuden.Api_HostAddress}}/api/tenants/{{TenantSlug}}/auth/staff/login
+Content-Type: application/json
+
+{
+  "email": "owner@rubijoyeria.local",
+  "password": "Rubi2026!"
+}
+
+###
+
+GET {{Siuden.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{Siuden.Api_HostAddress}}/api/account-members
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "email": "vendedor@rubijoyeria.local",
+  "roleCode": "SELLER",
+  "temporaryPassword": "Temporal2026!"
+}
+
+###
+
+GET {{Siuden.Api_HostAddress}}/api/account-members
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{Siuden.Api_HostAddress}}/api/auth/refresh
+
+###
+
+POST {{Siuden.Api_HostAddress}}/api/auth/logout

@@ -9,7 +9,8 @@ public sealed class JwtOptions
     public string Key { get; init; } = string.Empty;
     public string Issuer { get; init; } = string.Empty;
     public string Audience { get; init; } = string.Empty;
-    public int ExpireHours { get; init; }
+    public int AccessTokenExpireMinutes { get; init; } = 15;
+    public int RefreshTokenExpireDays { get; init; } = 30;
 
     public void Validate()
     {
@@ -23,9 +24,16 @@ public sealed class JwtOptions
                 "Jwt:Key must contain at least 32 bytes for HMAC-SHA256.");
         }
 
-        if (ExpireHours <= 0)
+        if (AccessTokenExpireMinutes <= 0)
         {
-            throw new InvalidOperationException("Jwt:ExpireHours must be greater than zero.");
+            throw new InvalidOperationException(
+                "Jwt:AccessTokenExpireMinutes must be greater than zero.");
+        }
+
+        if (RefreshTokenExpireDays <= 0)
+        {
+            throw new InvalidOperationException(
+                "Jwt:RefreshTokenExpireDays must be greater than zero.");
         }
     }
 }

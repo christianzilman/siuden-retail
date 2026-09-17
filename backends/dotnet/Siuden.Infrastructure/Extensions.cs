@@ -20,11 +20,18 @@ public static class Extensions
         services.AddDbContext<SiudenRetailDbContext>(options =>
             options.UseNpgsql(connectionString));
 
-        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IAccountMemberRepository, AccountMemberRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddSingleton(jwtOptions);
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<ICustomerRegistrationService, CustomerRegistrationService>();
+        services.AddScoped<IAccountMemberService, AccountMemberService>();
+        services.AddScoped<ITenantService, TenantService>();
 
         return services;
     }

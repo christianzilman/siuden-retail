@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Siuden.Domain.Entities;
 
-public class Customer: AuditableEntity<Guid>
+public class Customer : AuditableEntity<Guid>
 {
-    public string Name { get; set; }
-    public string SurName { get; set; }
-    public string DocumentType { get; set; }
-    public string DocumentNumber { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string SurName { get; set; } = string.Empty;
+    public string? DocumentType { get; set; }
+    public string? DocumentNumber { get; set; }
     public CustomerTypeEnum CustomerType { get; set; }
-    public string BusinessName { get; set; }
+    public string? BusinessName { get; set; }
     public CustomerStatusEnum Status { get; set; }
     public Guid TenantId { get; set; }
     public Tenant Tenant { get; set; } = null!;
@@ -24,18 +24,18 @@ public class Customer: AuditableEntity<Guid>
     public User? User { get; set; }
 
     // Contacto Comercial (Desnormalizado intencionalmente)
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? Phone { get; set; }
 
     // Dirección
-    public string Street { get; set; }       // Dirección / Calle
-    public string StreetNumber { get; set; } // Número
+    public string? Street { get; set; }       // Dirección / Calle
+    public string? StreetNumber { get; set; } // Número
     public string? Floor { get; set; }       // Piso (opcional)
     public string? Apartment { get; set; }   // Dpto (opcional)
-    public string City { get; set; }         // Ciudad
-    public string Province { get; set; }     // Provincia / State
+    public string? City { get; set; }         // Ciudad
+    public string? Province { get; set; }     // Provincia / State
 
     // Metadatos adicionales
-    public string Notes { get; set; }   
+    public string? Notes { get; set; }
 
 }

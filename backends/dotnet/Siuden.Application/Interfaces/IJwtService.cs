@@ -9,5 +9,6 @@ namespace Siuden.Application.Interfaces;
 
 public interface IJwtService
 {
-    string GenerateToken(User user);
+    Siuden.Application.Features.Auth.DTOs.GeneratedAccessTokenDto GenerateToken(
+        Siuden.Application.Features.Auth.DTOs.AuthSessionDto session);
 }

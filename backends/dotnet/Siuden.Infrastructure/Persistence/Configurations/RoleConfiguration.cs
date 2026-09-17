@@ -22,7 +22,10 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .IsRequired();
 
         builder.Property(role => role.Code)
-            .HasMaxLength(200)
+            .HasMaxLength(50)
             .IsRequired();
+
+        builder.HasIndex(role => role.Code)
+            .IsUnique();
     }
 }

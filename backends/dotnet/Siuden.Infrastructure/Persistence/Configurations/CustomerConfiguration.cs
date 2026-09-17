@@ -17,11 +17,42 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasKey(x => x.Id);
 
+        builder.Property(customer => customer.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(customer => customer.SurName)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(customer => customer.Email)
+            .HasMaxLength(255)
+            .IsRequired();
+
+        builder.Property(customer => customer.Phone)
+            .HasMaxLength(40);
+
+        builder.HasIndex(customer => new
+        {
+            customer.TenantId,
+            customer.UserId
+        })
+            .IsUnique();
+
         builder.HasOne(custonmer => custonmer.User)
             .WithMany(user => user.Customers)
-            .HasForeignKey(customer => customer.UserId)
+            .HasForeignKey(customer => new
+            {
+                customer.TenantId,
+                customer.UserId
+            })
+            .HasPrincipalKey(user => new
+            {
+                user.TenantId,
+                user.Id
+            })
             .IsRequired(false)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(custonmer => custonmer.Tenant)
             .WithMany(tenant => tenant.Customers)

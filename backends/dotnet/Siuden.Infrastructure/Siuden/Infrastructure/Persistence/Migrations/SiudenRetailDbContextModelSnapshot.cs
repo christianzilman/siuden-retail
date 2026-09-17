@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Siuden.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Siuden.Infrastructure.Migrations
+namespace Siuden.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SiudenRetailDbContext))]
-    [Migration("20260916225547_Estructura inicial MVP")]
-    partial class EstructurainicialMVP
+    partial class SiudenRetailDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,11 +72,12 @@ namespace Siuden.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
                     b.HasIndex("RoleId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("AccountId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("AccountMembers", (string)null);
                 });
@@ -141,11 +139,9 @@ namespace Siuden.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("BusinessName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -155,50 +151,47 @@ namespace Siuden.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("DocumentNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("DocumentType")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Floor")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Province")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<string>("Street")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("StreetNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SurName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -211,9 +204,8 @@ namespace Siuden.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("TenantId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("Customers", (string)null);
                 });
@@ -240,6 +232,9 @@ namespace Siuden.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("Permissions", (string)null);
                 });
@@ -424,6 +419,70 @@ namespace Siuden.Infrastructure.Migrations
                     b.ToTable("ProductVarients", (string)null);
                 });
 
+            modelBuilder.Entity("Siuden.Domain.Entities.RefreshSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ReplacedBySessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RoleCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("FamilyId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "RevokedAt");
+
+                    b.ToTable("RefreshSessions", (string)null);
+                });
+
             modelBuilder.Entity("Siuden.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -432,8 +491,8 @@ namespace Siuden.Infrastructure.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -451,6 +510,9 @@ namespace Siuden.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("Roles", (string)null);
                 });
@@ -492,7 +554,8 @@ namespace Siuden.Infrastructure.Migrations
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -503,6 +566,9 @@ namespace Siuden.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("Tenants", (string)null);
                 });
@@ -521,7 +587,7 @@ namespace Siuden.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime>("EmailVerifiedAt")
+                    b.Property<DateTime?>("EmailVerifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PasswordHash")
@@ -531,10 +597,16 @@ namespace Siuden.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique();
 
                     b.ToTable("Users", (string)null);
                 });
@@ -594,8 +666,9 @@ namespace Siuden.Infrastructure.Migrations
 
                     b.HasOne("Siuden.Domain.Entities.User", "User")
                         .WithMany("Customers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("TenantId", "UserId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Tenant");
 
@@ -654,6 +727,32 @@ namespace Siuden.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Siuden.Domain.Entities.RefreshSession", b =>
+                {
+                    b.HasOne("Siuden.Domain.Entities.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Siuden.Domain.Entities.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Siuden.Domain.Entities.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Siuden.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Siuden.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("Siuden.Domain.Entities.Permission", "Permission")
@@ -682,6 +781,17 @@ namespace Siuden.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("Siuden.Domain.Entities.User", b =>
+                {
+                    b.HasOne("Siuden.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("Users")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Siuden.Domain.Entities.Account", b =>
@@ -726,6 +836,8 @@ namespace Siuden.Infrastructure.Migrations
                     b.Navigation("Customers");
 
                     b.Navigation("Products");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Siuden.Domain.Entities.User", b =>

@@ -105,17 +105,17 @@ WHERE "Code" IN (
 )
 ON CONFLICT ("RoleId", "PermissionId") DO NOTHING;
 
--- CUSTOMER no recibe permisos del panel administrativo. Al registrarse desde
--- la tienda web debe crearse: Users + Customers (con UserId y TenantId) +
--- AccountMembers (con AccountId de Rubi y el RoleId CUSTOMER).
+-- CUSTOMER no recibe permisos del panel administrativo ni genera una fila en
+-- AccountMembers. El registro web crea Users + Customers dentro del Tenant.
 
 -- PasswordHash fue generado con ASP.NET Core Identity v3 para Rubi2026!.
 INSERT INTO "Users" (
-    "Id", "Email", "PasswordHash", "Status", "EmailVerifiedAt", "CreatedAt"
+    "Id", "TenantId", "Email", "PasswordHash", "Status", "EmailVerifiedAt", "CreatedAt"
 )
 VALUES
     (
         '30000000-0000-4000-8000-000000000001',
+        '22222222-2222-4222-8222-222222222222',
         'owner@rubijoyeria.local',
         'AQAAAAEAAYagAAAAEMfQqCX6gbNZDoIqkcoNNLHfML1Jjx3u1dNca4O9SnH63esacfTn8Rg4YSqRNBzPEQ==',
         1,
@@ -124,6 +124,7 @@ VALUES
     ),
     (
         '30000000-0000-4000-8000-000000000002',
+        '22222222-2222-4222-8222-222222222222',
         'admin@rubijoyeria.local',
         'AQAAAAEAAYagAAAAEMfQqCX6gbNZDoIqkcoNNLHfML1Jjx3u1dNca4O9SnH63esacfTn8Rg4YSqRNBzPEQ==',
         1,
@@ -131,6 +132,7 @@ VALUES
         CURRENT_TIMESTAMP
     )
 ON CONFLICT ("Id") DO UPDATE SET
+    "TenantId" = EXCLUDED."TenantId",
     "Email" = EXCLUDED."Email",
     "PasswordHash" = EXCLUDED."PasswordHash",
     "Status" = EXCLUDED."Status",

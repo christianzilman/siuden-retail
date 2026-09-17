@@ -42,6 +42,7 @@ builder.Services.AddInfrastructure(
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -72,6 +73,8 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtOptions.Issuer,
         ValidAudience = jwtOptions.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        NameClaimType = System.Security.Claims.ClaimTypes.Name,
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
         ClockSkew = TimeSpan.FromMinutes(1)
     };
 });

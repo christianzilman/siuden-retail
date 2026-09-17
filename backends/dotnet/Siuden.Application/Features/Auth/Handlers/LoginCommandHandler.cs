@@ -12,30 +12,19 @@ namespace Siuden.Application.Features.Auth.Handlers;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
 {
-    public readonly IUserService _userService;
+    private readonly IAuthenticationService _authenticationService;
 
-    public LoginCommandHandler(IUserService userService)
+    public LoginCommandHandler(IAuthenticationService authenticationService)
     {
-        _userService = userService;
+        _authenticationService = authenticationService;
     }
 
     public async Task<LoginResultDto> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var result = await _userService.SignIn(
+        return await _authenticationService.SignInStaffAsync(
+            request.TenantSlug,
             request.Email,
             request.Password,
             cancellationToken);
-
-        if (result == null)
-        {
-            return new LoginResultDto
-            {
-                Success = false,
-                ErrorMessage = "Credenciales inválidas"
-            };
-        }
-
-        result.Success = true;
-        return result;
     }
 }

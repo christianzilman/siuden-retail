@@ -96,20 +96,19 @@ export default function SiudenMvpArchitecture() {
 
   const endpointRows = [
     [<Code>GET /api/tenants/{"{slug}"}</Code>, "TenantsController", "Configuración pública de la tienda", "Público"],
-    [<Code>POST /api/tenants/{"{slug}"}/customers</Code>, "CustomersController", "Crea User + Customer + membresía CUSTOMER", "Público"],
-    [<Code>POST /api/tenants/{"{slug}"}/auth/login</Code>, "AuthController", "Login del comprador en esa tienda", "Público"],
-    [<Code>POST /api/auth/login</Code>, "AuthController", "Login del personal al backoffice", "Público"],
+    [<Code>POST /api/tenants/{"{slug}"}/customers</Code>, "CustomersController", "Crea User + Customer dentro del tenant", "Público"],
+    [<Code>POST /api/tenants/{"{slug}"}/auth/customer/login</Code>, "AuthController", "Login del comprador en esa tienda", "Público"],
+    [<Code>POST /api/tenants/{"{slug}"}/auth/staff/login</Code>, "AuthController", "Login del personal de esa tienda", "Público"],
     [<Code>POST /api/auth/refresh</Code>, "AuthController", "Renueva el contexto ya contenido en la sesión", "Refresh token"],
     [<Code>GET /api/auth/me</Code>, "AuthController", "Devuelve identidad, rol y contexto activo", "JWT"],
     [<Code>POST /api/account-members</Code>, "AccountMembersController", "OWNER/ADMIN crea o invita personal", "JWT + permiso"],
   ];
 
-  const gapRows = [
-    ["JWT sin contexto", "Hoy sólo contiene UserId y email", "Agregar AccountId, TenantId, Role y CustomerId cuando corresponda"],
-    ["Login sin membresía", "Hoy valida únicamente email y contraseña", "Cargar AccountMember/Customer antes de emitir el token"],
-    ["Slug no único", "Tenant.Slug no tiene índice único configurado", "Definir unicidad y slugs reservados"],
-    ["Registro incompleto", "Customer exige campos que la pantalla no solicita", "Volver opcionales los datos comerciales posteriores"],
-    ["Sin refresh persistido", "No existe sesión renovable/revocable", "Agregar RefreshSession con hash y rotación"],
+  const identityRows = [
+    ["User", "Pertenece obligatoriamente a un Tenant", "UNIQUE (TenantId, Email)"],
+    ["Customer", "Perfil comprador dentro de ese Tenant", "UNIQUE (TenantId, UserId)"],
+    ["AccountMember", "Personal de la Account: OWNER, ADMIN, SELLER o STOCK_MANAGER", "CUSTOMER no es una membresía"],
+    ["Mismo email", "Puede existir en Rubí y en Otra", "Son User.Id y contraseñas independientes"],
   ];
 
   return (
@@ -124,8 +123,8 @@ export default function SiudenMvpArchitecture() {
         </Text>
       </Stack>
 
-      <Callout tone="info" title="Qué significa /admin">
-        Es el backoffice de cada comercio. OWNER, ADMIN, SELLER y STOCK_MANAGER usan el mismo panel; la API limita sus acciones por rol y permisos. No es un superadministrador global de Siuden.
+      <Callout tone="info" title="Identidad aislada por tienda">
+        Un email identifica a una persona solamente dentro de un tenant. pepe@gmail.com en Rubí y pepe@gmail.com en Otra son usuarios independientes, con sus propias credenciales y datos.
       </Callout>
 
       <Grid columns="repeat(auto-fit, minmax(300px, 1fr))" gap={16}>
@@ -136,16 +135,16 @@ export default function SiudenMvpArchitecture() {
           steps={[
             "React obtiene tenantSlug = rubi desde la URL",
             "La API carga diseño, catálogo y configuración del tenant",
-            "El registro crea User + Customer + AccountMember(CUSTOMER)",
+            "El registro crea User + Customer dentro de Rubí",
             "El login emite una sesión vinculada a Rubí",
           ]}
         />
         <RouteFlow
           title="Panel administrativo"
-          route="siuden.com.ar/admin"
+          route="siuden.com.ar/rubi/admin"
           audience="STAFF"
           steps={[
-            "El personal inicia sesión en /admin/login",
+            "El personal inicia sesión en /rubi/admin/login",
             "La API carga AccountMember, Role y el tenant del comercio",
             "React muestra módulos según permisos",
             "La API vuelve a comprobar permisos en cada operación",
@@ -156,7 +155,7 @@ export default function SiudenMvpArchitecture() {
       <Stack gap={12}>
         <H2>Contrato mínimo de la API</H2>
         <Text tone="secondary">
-          Dos rutas de login explícitas en el mismo AuthController evitan la regla oculta “tenantSlug nulo significa administrador”. El código común de credenciales puede reutilizarse internamente.
+          Ambos accesos son explícitos y reciben el slug. La API no intenta deducir una tienda a partir de un email que puede repetirse entre tenants.
         </Text>
         <Table
           headers={["Endpoint", "Controlador", "Responsabilidad", "Acceso"]}
@@ -185,7 +184,7 @@ export default function SiudenMvpArchitecture() {
           </Callout>
           <Text><Text weight="semibold">OWNER</Text> puede crear ADMIN, SELLER y STOCK_MANAGER.</Text>
           <Text><Text weight="semibold">ADMIN</Text> puede crear SELLER y STOCK_MANAGER.</Text>
-          <Text><Text weight="semibold">CUSTOMER</Text> nunca accede a rutas administrativas.</Text>
+          <Text><Text weight="semibold">CUSTOMER</Text> se obtiene desde Customer y nunca se guarda como AccountMember.</Text>
           <Text tone="secondary" size="small">
             Un superadministrador de la plataforma y una Account con varios tenants quedan fuera del MVP.
           </Text>
@@ -193,17 +192,17 @@ export default function SiudenMvpArchitecture() {
       </Grid>
 
       <Stack gap={12}>
-        <H2>Brecha entre el modelo actual y el MVP</H2>
+        <H2>Invariantes de identidad</H2>
         <Table
-          headers={["Tema", "Estado actual", "Cambio necesario"]}
-          rows={gapRows}
-          rowTone={["warning", "warning", "warning", "warning", "warning"]}
+          headers={["Recurso", "Alcance", "Regla"]}
+          rows={identityRows}
+          rowTone={["info", "info", "neutral", "warning"]}
           striped
         />
       </Stack>
 
       <Callout tone="neutral" title="Orden de construcción">
-        1. Cerrar invariantes e índices del modelo. 2. Registro de Customer. 3. Login contextual y autorización. 4. Gestión de AccountMembers. 5. Refresh/logout. 6. React con rutas /:tenantSlug y /admin.
+        1. Cerrar invariantes e índices del modelo. 2. Registro de Customer. 3. Login contextual y autorización. 4. Gestión de AccountMembers. 5. Refresh/logout. 6. React con rutas /:tenantSlug y /:tenantSlug/admin.
       </Callout>
     </Stack>
   );

@@ -15,6 +15,15 @@ public class AccountMemberConfiguration : IEntityTypeConfiguration<AccountMember
     {
         builder.ToTable("AccountMembers");
 
+        builder.HasKey(accountMember => accountMember.Id);
+
+        builder.HasIndex(accountMember => new
+        {
+            accountMember.AccountId,
+            accountMember.UserId
+        })
+            .IsUnique();
+
         builder.HasOne(acccountMember => acccountMember.User)
             .WithMany(user => user.AccountMembers)
             .HasForeignKey(acccountMember => acccountMember.UserId);

@@ -10,7 +10,7 @@ namespace Siuden.Infrastructure.Persistence;
 
 public class SiudenRetailDbContext : DbContext
 {
-    public SiudenRetailDbContext(DbContextOptions<SiudenRetailDbContext> options): base(options)
+    public SiudenRetailDbContext(DbContextOptions<SiudenRetailDbContext> options) : base(options)
     {
     }
 
@@ -22,6 +22,7 @@ public class SiudenRetailDbContext : DbContext
     public DbSet<AccountMember> AccountMembers => Set<AccountMember>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVarient> ProductVarients => Set<ProductVarient>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();

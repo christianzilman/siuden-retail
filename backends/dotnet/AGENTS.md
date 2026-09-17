@@ -7,6 +7,11 @@
 
 Trabajar incrementalmente sobre Siuden Retail, respetando la arquitectura existente y evitando agregar complejidad no solicitada.
 
+## Arquitectura MVP vigente
+
+- Antes de cambiar autenticación, usuarios, clientes, tenants o rutas públicas, consultar `../../docs/siuden-mvp-architecture.canvas.tsx` y `../../docs/siuden-mvp-architecture.md`.
+- Este alcance se mantiene hasta que el usuario indique expresamente un cambio.
+
 ## Reglas de arquitectura
 
 - `Siuden.Api` contiene elementos HTTP: controllers, middleware, Swagger, configuración de autenticación JWT y autorización.
@@ -57,7 +62,10 @@ Trabajar incrementalmente sobre Siuden Retail, respetando la arquitectura existe
 - Nunca guardar contraseñas en texto plano.
 - Guardar únicamente `PasswordHash`.
 - Los roles son registros de la tabla `Roles`.
-- Los roles iniciales previstos son `OWNER`, `ADMIN` y `SELLER`.
+- Los roles iniciales previstos son `OWNER`, `ADMIN`, `SELLER`, `STOCK_MANAGER` y `CUSTOMER`.
+- Todo `User` pertenece a un `Tenant`; el email es único dentro del tenant, no globalmente.
+- `Customer` representa al comprador y no debe crear un `AccountMember`; las membresías se reservan para el personal.
+- Los logins de cliente y personal deben recibir el `tenantSlug` explícitamente.
 - El tenant debe obtenerse desde la identidad autenticada; no debe confiarse en un `TenantId` enviado por el cliente.
 
 ## Forma de trabajo

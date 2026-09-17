@@ -21,16 +21,25 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(255)
             .IsRequired();
 
-        //builder.HasIndex(user => user.Email)
-        //    .IsUnique();
-        // más adelante
-        //builder.HasIndex(user => new
-        //{
-        //    user.TenantId,
-        //    user.Email
-        //}).IsUnique();
+        builder.HasIndex(user => new
+        {
+            user.TenantId,
+            user.Email
+        })
+            .IsUnique();
+
+        builder.HasAlternateKey(user => new
+        {
+            user.TenantId,
+            user.Id
+        });
 
         builder.Property(user => user.PasswordHash)
             .IsRequired();
+
+        builder.HasOne(user => user.Tenant)
+            .WithMany(tenant => tenant.Users)
+            .HasForeignKey(user => user.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

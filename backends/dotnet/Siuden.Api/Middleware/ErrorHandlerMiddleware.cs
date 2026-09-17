@@ -25,6 +25,22 @@ public sealed class ErrorHandlerMiddleware
         {
             await HandleValidationExceptionAsync(context, exception);
         }
+        catch (Siuden.Application.Common.Exceptions.UnauthorizedException exception)
+        {
+            await WriteErrorAsync(context, StatusCodes.Status401Unauthorized, exception.Message);
+        }
+        catch (Siuden.Application.Common.Exceptions.ForbiddenException exception)
+        {
+            await WriteErrorAsync(context, StatusCodes.Status403Forbidden, exception.Message);
+        }
+        catch (Siuden.Application.Common.Exceptions.NotFoundException exception)
+        {
+            await WriteErrorAsync(context, StatusCodes.Status404NotFound, exception.Message);
+        }
+        catch (Siuden.Application.Common.Exceptions.ConflictException exception)
+        {
+            await WriteErrorAsync(context, StatusCodes.Status409Conflict, exception.Message);
+        }
         catch (Exception exception)
         {
             _logger.LogError(
@@ -69,6 +85,19 @@ public sealed class ErrorHandlerMiddleware
         {
             status = StatusCodes.Status500InternalServerError,
             message = "An unexpected error occurred."
+        });
+    }
+
+    private static Task WriteErrorAsync(
+        HttpContext context,
+        int statusCode,
+        string message)
+    {
+        context.Response.StatusCode = statusCode;
+        return context.Response.WriteAsJsonAsync(new
+        {
+            status = statusCode,
+            message
         });
     }
 }

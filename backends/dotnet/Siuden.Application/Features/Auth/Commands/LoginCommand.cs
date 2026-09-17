@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace Siuden.Application.Features.Auth.Commands;
 
-public class LoginCommand: IRequest<LoginResultDto>
+public sealed class LoginCommand : IRequest<LoginResultDto>
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public string TenantSlug { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
