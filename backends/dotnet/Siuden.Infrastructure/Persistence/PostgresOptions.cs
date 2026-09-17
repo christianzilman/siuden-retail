@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Siuden.Infrastructure.Persistence;
 
-public class PostgresOptions
+public sealed class PostgresOptions
 {
-    public string ConnectionString { get; set; }
+    public string ConnectionString { get; init; } = string.Empty;
 }

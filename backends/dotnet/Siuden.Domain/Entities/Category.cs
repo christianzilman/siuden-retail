@@ -11,6 +11,8 @@ public class Category: AuditableEntity<Guid>
     public Guid TenantId { get; set; }
     public Tenant Tenant { get; set; }
     public Guid? ParentId { get; set; }
+    public Category? Parent { get; set; }
+    public ICollection<Category> Children { get; set; } = [];
     public string Name { get; set; }
     public string Slug { get; set; }
     public string Description { get; set; }

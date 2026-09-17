@@ -27,5 +27,10 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.HasOne(category => category.Tenant)
             .WithMany(tenant => tenant.Categories)
             .HasForeignKey(category => category.TenantId);
+
+        builder.HasOne(category => category.Parent)
+            .WithMany(category => category.Children)
+            .HasForeignKey(category => category.ParentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

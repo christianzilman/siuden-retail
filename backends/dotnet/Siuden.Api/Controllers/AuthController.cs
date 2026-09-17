@@ -1,13 +1,14 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Siuden.Application.Features.Auth.Commands;
 using Siuden.Application.Features.Auth.DTOs;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Siuden.Api.Controllers;
 
-public class AuthController : Controller
+[ApiController]
+[Route("api/auth")]
+public sealed class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
 
@@ -20,9 +21,11 @@ public class AuthController : Controller
     [ProducesResponseType(typeof(LoginResultDto), (int)HttpStatusCode.OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<LoginResultDto>> Login([FromBody] LoginCommand command)
+    public async Task<ActionResult<LoginResultDto>> Login(
+        [FromBody] LoginCommand command,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         if (!result.Success)
         {

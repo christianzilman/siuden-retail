@@ -30,8 +30,8 @@ public class Customer: AuditableEntity<Guid>
     // Dirección
     public string Street { get; set; }       // Dirección / Calle
     public string StreetNumber { get; set; } // Número
-    public string Floor { get; set; }        // Piso (opcional)
-    public string Apartment { get; set; }    // Dpto (opcional)
+    public string? Floor { get; set; }       // Piso (opcional)
+    public string? Apartment { get; set; }   // Dpto (opcional)
     public string City { get; set; }         // Ciudad
     public string Province { get; set; }     // Provincia / State
 

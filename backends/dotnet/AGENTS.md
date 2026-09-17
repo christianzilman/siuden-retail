@@ -9,10 +9,10 @@ Trabajar incrementalmente sobre Siuden Retail, respetando la arquitectura existe
 
 ## Reglas de arquitectura
 
-- `Siuden.Api` contiene elementos HTTP: controllers, middleware, Swagger, JWT y autorización.
+- `Siuden.Api` contiene elementos HTTP: controllers, middleware, Swagger, configuración de autenticación JWT y autorización.
 - `Siuden.Application` contiene commands, queries, handlers, DTOs, validators y behaviors.
 - `Siuden.Domain` contiene entidades y reglas de dominio.
-- `Siuden.Infrastructure` contiene EF Core, PostgreSQL, repositorios y servicios externos.
+- `Siuden.Infrastructure` contiene EF Core, PostgreSQL, repositorios, generación de tokens JWT y servicios externos.
 - Domain no debe depender de Application, Infrastructure ni API.
 - Application no debe depender de Infrastructure ni API.
 
@@ -23,11 +23,14 @@ Trabajar incrementalmente sobre Siuden Retail, respetando la arquitectura existe
 - Las claves de las entidades principales utilizan `Guid`.
 - `UserRole` utiliza una clave primaria compuesta por `UserId` y `RoleId`.
 - No crear migraciones hasta que las entidades y configuraciones estén revisadas.
+- No crear, modificar ni eliminar migraciones de EF Core ni archivos SQL generados (por ejemplo, `initial-mvp.sql`) salvo que el usuario lo solicite explícitamente.
+- La creación o aplicación de migraciones sólo se realiza cuando el usuario la indica de forma explícita.
 
 ## Dependency Injection
 
 - Registrar Application mediante `AddApplication()`.
 - Registrar Infrastructure mediante `AddInfrastructure()`.
+- Registrar en `AddInfrastructure()` todas las implementaciones pertenecientes a Infrastructure, incluyendo `IJwtService`.
 - Mantener `Program.cs` como composition root.
 - No registrar MediatR ni FluentValidation dentro de Infrastructure.
 
@@ -49,6 +52,8 @@ Trabajar incrementalmente sobre Siuden Retail, respetando la arquitectura existe
 
 ## Autenticación
 
+- Mantener `JwtOptions` y la implementación `JwtService` dentro de `Siuden.Infrastructure`.
+- Configurar `AddAuthentication()`, `AddJwtBearer()`, `UseAuthentication()` y autorización HTTP dentro de `Siuden.Api`.
 - Nunca guardar contraseñas en texto plano.
 - Guardar únicamente `PasswordHash`.
 - Los roles son registros de la tabla `Roles`.

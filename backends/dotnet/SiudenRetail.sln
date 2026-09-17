@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siuden.Infrastructure.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siuden.Api.IntegrationTests", "tests\Siuden.Api.IntegrationTests\Siuden.Api.IntegrationTests.csproj", "{F1A89634-ADAE-4DDA-861F-0D60D531BEA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siuden.Services.Core", "Siuden.Services.Core\Siuden.Services.Core.csproj", "{E737EAB2-20EF-4A8F-B480-B36DD70F1221}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{F1A89634-ADAE-4DDA-861F-0D60D531BEA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1A89634-ADAE-4DDA-861F-0D60D531BEA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1A89634-ADAE-4DDA-861F-0D60D531BEA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E737EAB2-20EF-4A8F-B480-B36DD70F1221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E737EAB2-20EF-4A8F-B480-B36DD70F1221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E737EAB2-20EF-4A8F-B480-B36DD70F1221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E737EAB2-20EF-4A8F-B480-B36DD70F1221}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

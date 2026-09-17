@@ -86,6 +86,9 @@ _ReSharper*/
 *.p12
 *.key
 
+# Local ASP.NET configuration can contain database passwords and JWT keys.
+backends/dotnet/Siuden.Api/appsettings.json
+
 # ============================================
 # Operating-system files
 # ============================================
