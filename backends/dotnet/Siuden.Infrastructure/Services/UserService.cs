@@ -1,23 +1,22 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Siuden.Application.Features.Auth.DTOs;
 using Siuden.Application.Interfaces;
-using Siuden.Infrastructure.Persistence;
+using Siuden.Domain.Repositories;
 
 namespace Siuden.Infrastructure.Services;
 
 public sealed class UserService : IUserService
 {
-    private readonly SiudenRetailDbContext _context;
+    private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
     private readonly IPasswordHasher<Domain.Entities.User> _passwordHasher;
 
     public UserService(
-        SiudenRetailDbContext context,
+        IUserRepository userRepository,
         IJwtService jwtService,
         IPasswordHasher<Domain.Entities.User> passwordHasher)
     {
-        _context = context;
+        _userRepository = userRepository;
         _jwtService = jwtService;
         _passwordHasher = passwordHasher;
     }
@@ -27,10 +26,7 @@ public sealed class UserService : IUserService
         string password,
         CancellationToken cancellationToken)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(
-                u => u.Email == email && u.Status == Domain.Enums.UserStatusEnum.ACTIVE,
-                cancellationToken);
+        var user = await _userRepository.GetActiveByEmailAsync(email, cancellationToken);
 
         if (user is null)
             return null;
@@ -46,7 +42,7 @@ public sealed class UserService : IUserService
         if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.PasswordHash = _passwordHasher.HashPassword(user, password);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _userRepository.UpdateAsync(user, cancellationToken);
         }
 
         var token = _jwtService.GenerateToken(user);

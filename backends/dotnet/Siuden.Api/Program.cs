@@ -7,7 +7,6 @@ using Siuden.Application;
 using Siuden.Infrastructure;
 using Siuden.Infrastructure.Authentication;
 using Siuden.Infrastructure.Persistence;
-using System.Security.Cryptography;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

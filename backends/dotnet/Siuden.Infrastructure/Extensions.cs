@@ -3,8 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Siuden.Application.Interfaces;
 using Siuden.Domain.Entities;
+using Siuden.Domain.Repositories;
 using Siuden.Infrastructure.Authentication;
 using Siuden.Infrastructure.Persistence;
+using Siuden.Infrastructure.Persistence.Repositories;
 using Siuden.Infrastructure.Services;
 namespace Siuden.Infrastructure;
 
@@ -19,6 +21,7 @@ public static class Extensions
             options.UseNpgsql(connectionString));
 
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddSingleton(jwtOptions);
         services.AddScoped<IJwtService, JwtService>();
