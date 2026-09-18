@@ -1,39 +1,49 @@
-import { api } from "@/services/http-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import z from "zod";
 import { Field } from "./Field";
 import { Button } from "@/components/ui/button";
+import { registerSchema, type RegisterValues } from "../validations";
+import { loginCustomer, registerCustomer } from "../api";
+import { useAuthStore } from "../store";
+import { toast } from "sonner";
 
-export const RegisterForm = ({ tenantSlug }: { tenantSlug: string }) => {
-  const registerSchema = z
-    .object({
-      firstName: z.string().min(2, "Ingresá tu nombre"),
-      lastName: z.string().min(2, "Ingresá tu apellido"),
-      email: z.email("Ingresá un email válido"),
-      phone: z.string().optional(),
-      password: z.string().min(6, "Mínimo 6 caracteres"),
-      passwordConfirmation: z.string().min(6, "Repetí la contraseña"),
-    })
-    .refine((data) => data.password === data.passwordConfirmation, {
-      path: ["passwordConfirmation"],
-      message: "Las contraseñas no coinciden",
-    });
-
-  type RegisterValues = z.infer<typeof registerSchema>;
-
-  const [message, setMessage] = useState("");
+export const RegisterForm = ({
+  tenantSlug,
+  onSuccess,
+}: {
+  tenantSlug: string;
+  onSuccess: () => void;
+}) => {
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterValues>({ resolver: zodResolver(registerSchema) });
   const registration = useMutation({
-    mutationFn: (values: RegisterValues) =>
-      api.post(`/api/tenants/${tenantSlug}/customers`, values),
-    onSuccess: () => setMessage("Cuenta creada. Ya podés iniciar sesión."),
+    mutationFn: async (values: RegisterValues) => {
+      await registerCustomer(tenantSlug, values);
+
+      try {
+        const session = await loginCustomer(tenantSlug, {
+          email: values.email,
+          password: values.password,
+        });
+        return session;
+      } catch {
+        return null;
+      }
+    },
+    onSuccess: (session) => {
+      if (session) {
+        setAuthenticated(session);
+        toast.success("Cuenta creada. Sesión iniciada.");
+      } else {
+        toast.success("Cuenta creada. Ya podés iniciar sesión.");
+      }
+      onSuccess();
+    },
   });
   return (
     <form
@@ -78,7 +88,6 @@ export const RegisterForm = ({ tenantSlug }: { tenantSlug: string }) => {
       <Button disabled={registration.isPending} type="submit">
         {registration.isPending ? "Creando…" : "Crear cuenta"}
       </Button>
-      {message ? <p className="text-sm text-green-700">{message}</p> : null}
       {registration.isError ? (
         <p className="text-sm text-[var(--store-primary)]">
           No se pudo crear la cuenta. Revisá los datos y que la API esté

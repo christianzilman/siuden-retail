@@ -50,9 +50,15 @@ export const AuthDialog = ({
             Acceso exclusivo para clientes de esta tienda.
           </Dialog.Description>
           {view === "login" ? (
-            <LoginForm tenantSlug={tenantSlug} />
+            <LoginForm
+              tenantSlug={tenantSlug}
+              onSuccess={() => onOpenChange(false)}
+            />
           ) : (
-            <RegisterForm tenantSlug={tenantSlug} />
+            <RegisterForm
+              tenantSlug={tenantSlug}
+              onSuccess={() => onOpenChange(false)}
+            />
           )}
           <button
             className="mt-6 text-sm underline underline-offset-4"

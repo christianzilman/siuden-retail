@@ -3,12 +3,22 @@ import { products } from "@/features/catalog/data/mocks";
 import { formatPrice } from "@/lib/format";
 import { X, Search, Camera, Menu } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { logout } from "@/features/auth/api";
+import { useAuthStore } from "@/features/auth/store";
 
 export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [auth, setAuth] = useState<"login" | "register" | null>(null);
+  const session = useAuthStore((state) => state.session);
+  const status = useAuthStore((state) => state.status);
+  const setAnonymous = useAuthStore((state) => state.setAnonymous);
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSettled: () => setAnonymous(),
+  });
   const results = useMemo(
     () =>
       products
@@ -25,9 +35,28 @@ export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
     <>
       <div className="border-b border-[var(--store-hairline)] bg-white/80">
         <div className="mx-auto flex min-h-9 w-[min(100%-2rem,86rem)] items-center justify-end gap-2 text-xs text-[var(--store-muted)]">
-          <button onClick={() => setAuth("register")}>Crear cuenta</button>
-          <span>|</span>
-          <button onClick={() => setAuth("login")}>Iniciar sesión</button>
+          {status === "authenticated" && session ? (
+            <>
+              <span className="max-w-48 truncate" title={session.email}>
+                {session.email}
+              </span>
+              <span>|</span>
+              <button
+                disabled={logoutMutation.isPending}
+                onClick={() => logoutMutation.mutate()}
+              >
+                {logoutMutation.isPending ? "Cerrando…" : "Cerrar sesión"}
+              </button>
+            </>
+          ) : status === "anonymous" ? (
+            <>
+              <button onClick={() => setAuth("register")}>Crear cuenta</button>
+              <span>|</span>
+              <button onClick={() => setAuth("login")}>Iniciar sesión</button>
+            </>
+          ) : (
+            <span>Comprobando sesión…</span>
+          )}
         </div>
       </div>
       <header className="sticky top-0 z-40 border-b border-[var(--store-hairline)] bg-[color:rgb(248_246_241_/_0.94)] backdrop-blur-md">
