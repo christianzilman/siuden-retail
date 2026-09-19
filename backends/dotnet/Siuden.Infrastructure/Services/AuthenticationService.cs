@@ -118,6 +118,7 @@ public sealed class AuthenticationService : IAuthenticationService
         string refreshToken,
         CancellationToken cancellationToken)
     {
+        var now = DateTime.UtcNow;
         var tokenHash = HashToken(refreshToken);
         var storedSession = await _context.RefreshSessions
             .SingleOrDefaultAsync(session => session.TokenHash == tokenHash, cancellationToken)
@@ -125,26 +126,62 @@ public sealed class AuthenticationService : IAuthenticationService
 
         if (storedSession.RevokedAt.HasValue)
         {
+            var isConcurrentReuse =
+                storedSession.ReplacedBySessionId.HasValue &&
+                storedSession.RevokedAt.Value >= now.AddSeconds(
+                    -_jwtOptions.RefreshTokenReuseGraceSeconds);
+
+            if (isConcurrentReuse)
+            {
+                throw new UnauthorizedException("La sesión ya fue actualizada");
+            }
+
             await RevokeFamilyAsync(storedSession.FamilyId, cancellationToken);
             throw new UnauthorizedException("La sesión fue revocada");
         }
 
-        if (storedSession.ExpiresAt <= DateTime.UtcNow)
+        var idleExpiresAtUtc = storedSession.CreatedAt.AddDays(
+            _jwtOptions.RefreshTokenIdleExpireDays);
+
+        if (storedSession.ExpiresAt <= now || idleExpiresAtUtc <= now)
         {
-            storedSession.RevokedAt = DateTime.UtcNow;
+            storedSession.RevokedAt = now;
             await _context.SaveChangesAsync(cancellationToken);
             throw new UnauthorizedException("La sesión venció");
         }
 
-        var session = await RebuildSessionAsync(storedSession, cancellationToken);
-        var replacement = CreateRefreshSession(session, storedSession.FamilyId);
+        var familyStartedAtUtc = await _context.RefreshSessions
+            .Where(session => session.FamilyId == storedSession.FamilyId)
+            .MinAsync(session => session.CreatedAt, cancellationToken);
+        var absoluteExpiresAtUtc = familyStartedAtUtc.AddDays(
+            _jwtOptions.RefreshSessionAbsoluteExpireDays);
 
-        storedSession.RevokedAt = DateTime.UtcNow;
+        if (absoluteExpiresAtUtc <= now)
+        {
+            await RevokeFamilyAsync(storedSession.FamilyId, cancellationToken);
+            throw new UnauthorizedException("La sesión alcanzó su duración máxima");
+        }
+
+        var session = await RebuildSessionAsync(storedSession, cancellationToken);
+        var replacement = CreateRefreshSession(
+            session,
+            storedSession.FamilyId,
+            absoluteExpiresAtUtc,
+            now);
+
+        storedSession.RevokedAt = now;
         storedSession.ReplacedBySessionId = replacement.Entity.Id;
         _context.RefreshSessions.Add(replacement.Entity);
 
         var accessToken = _jwtService.GenerateToken(session);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new UnauthorizedException("La sesión ya fue actualizada");
+        }
 
         return ToLoginResult(session, accessToken, replacement);
     }
@@ -212,8 +249,13 @@ public sealed class AuthenticationService : IAuthenticationService
         AuthSessionDto session,
         CancellationToken cancellationToken)
     {
+        var now = DateTime.UtcNow;
         var accessToken = _jwtService.GenerateToken(session);
-        var refresh = CreateRefreshSession(session, Guid.NewGuid());
+        var refresh = CreateRefreshSession(
+            session,
+            Guid.NewGuid(),
+            now.AddDays(_jwtOptions.RefreshSessionAbsoluteExpireDays),
+            now);
         _context.RefreshSessions.Add(refresh.Entity);
         await _context.SaveChangesAsync(cancellationToken);
         return ToLoginResult(session, accessToken, refresh);
@@ -296,10 +338,17 @@ public sealed class AuthenticationService : IAuthenticationService
         };
     }
 
-    private RefreshTokenPair CreateRefreshSession(AuthSessionDto session, Guid familyId)
+    private RefreshTokenPair CreateRefreshSession(
+        AuthSessionDto session,
+        Guid familyId,
+        DateTime absoluteExpiresAtUtc,
+        DateTime now)
     {
         var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
-        var expiresAtUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireDays);
+        var idleExpiresAtUtc = now.AddDays(_jwtOptions.RefreshTokenIdleExpireDays);
+        var expiresAtUtc = idleExpiresAtUtc < absoluteExpiresAtUtc
+            ? idleExpiresAtUtc
+            : absoluteExpiresAtUtc;
         var entity = new RefreshSession
         {
             Id = Guid.NewGuid(),
@@ -310,7 +359,8 @@ public sealed class AuthenticationService : IAuthenticationService
             FamilyId = familyId,
             RoleCode = session.Role,
             TokenHash = HashToken(rawToken),
-            ExpiresAt = expiresAtUtc
+            ExpiresAt = expiresAtUtc,
+            CreatedAt = now
         };
 
         return new RefreshTokenPair(rawToken, expiresAtUtc, entity);

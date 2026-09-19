@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Siuden.Infrastructure.Persistence.Configurations;
 
-public class ProductVarientConfiguration : IEntityTypeConfiguration<ProductVarient>
+public class ProductVarientConfiguration : IEntityTypeConfiguration<ProductVariant>
 {
-    public void Configure(EntityTypeBuilder<ProductVarient> builder)
+    public void Configure(EntityTypeBuilder<ProductVariant> builder)
     {
         builder.ToTable("ProductVarients");
         builder.HasKey(x => x.Id);
         
-        builder.Property(p => p.VarientName)
+        builder.Property(p => p.VariantName)
             .HasMaxLength(255);
         builder.Property(p => p.Sku)
             .HasMaxLength(255);
@@ -24,7 +24,7 @@ public class ProductVarientConfiguration : IEntityTypeConfiguration<ProductVarie
             .HasMaxLength(255);
 
         builder.HasOne(productVarient => productVarient.Product)
-            .WithMany(product => product.ProductVarients)
+            .WithMany(product => product.ProductVariants)
             .HasForeignKey(productVarient => productVarient.ProductId);
     }
 }

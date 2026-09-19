@@ -19,6 +19,9 @@ public sealed class RefreshSessionConfiguration : IEntityTypeConfiguration<Refre
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(session => session.RevokedAt)
+            .IsConcurrencyToken();
+
         builder.HasIndex(session => session.TokenHash)
             .IsUnique();
         builder.HasIndex(session => session.FamilyId);

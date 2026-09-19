@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity;
+using Siuden.Application.Features.Products.Repositories;
 using Siuden.Application.Interfaces;
 using Siuden.Domain.Entities;
 using Siuden.Domain.Repositories;
@@ -20,18 +21,35 @@ public static class Extensions
         services.AddDbContext<SiudenRetailDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        //repository
+        services.AddScoped<ProductRepository>();
+
+        services.AddScoped<IProductRepository>(sp =>
+            sp.GetRequiredService<ProductRepository>());
+
+        services.AddScoped<IProductReadRepository>(sp =>
+            sp.GetRequiredService<ProductRepository>());
+
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IAccountMemberRepository, AccountMemberRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+
         services.AddSingleton(jwtOptions);
+
+        //services
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ICustomerRegistrationService, CustomerRegistrationService>();
         services.AddScoped<IAccountMemberService, AccountMemberService>();
         services.AddScoped<ITenantService, TenantService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IProductService, ProductService>();
+
 
         return services;
     }

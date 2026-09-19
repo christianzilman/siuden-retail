@@ -1,4 +1,4 @@
-import { api } from "@/services/http-client";
+import { api, refreshAuthentication } from "@/services/http-client";
 import type { LoginValues, RegisterValues } from "./validations";
 import type { LoginResult } from "./types";
 
@@ -18,8 +18,7 @@ export async function registerCustomer(
 }
 
 export async function refreshSession() {
-  const response = await api.post<LoginResult>("/api/auth/refresh");
-  return response.data;
+  return refreshAuthentication();
 }
 
 export async function logout() {

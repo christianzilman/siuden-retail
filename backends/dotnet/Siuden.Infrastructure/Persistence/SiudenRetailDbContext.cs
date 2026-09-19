@@ -24,7 +24,7 @@ public class SiudenRetailDbContext : DbContext
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<RefreshSession> RefreshSessions => Set<RefreshSession>();
     public DbSet<Product> Products => Set<Product>();
-    public DbSet<ProductVarient> ProductVarients => Set<ProductVarient>();
+    public DbSet<ProductVariant> ProductVarients => Set<ProductVariant>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();

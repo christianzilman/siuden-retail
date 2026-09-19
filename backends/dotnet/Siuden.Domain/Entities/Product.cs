@@ -17,7 +17,7 @@ public class Product: AuditableEntity<long>
     public string Slug { get; set; }
     public string SeoTitle { get; set; }
     public string SeoDescription { get; set; }
-    public ICollection<ProductVarient> ProductVarients { get; set; } = [];
+    public ICollection<ProductVariant> ProductVariants { get; set; } = [];
     public ICollection<ProductCategory> ProductCategories { get; set; } = [];
     public ICollection<ProductImage> ProductImages { get; set; } = [];
 

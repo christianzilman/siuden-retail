@@ -10,7 +10,9 @@ public sealed class JwtOptions
     public string Issuer { get; init; } = string.Empty;
     public string Audience { get; init; } = string.Empty;
     public int AccessTokenExpireMinutes { get; init; } = 15;
-    public int RefreshTokenExpireDays { get; init; } = 30;
+    public int RefreshTokenIdleExpireDays { get; init; } = 7;
+    public int RefreshSessionAbsoluteExpireDays { get; init; } = 30;
+    public int RefreshTokenReuseGraceSeconds { get; init; } = 10;
 
     public void Validate()
     {
@@ -30,10 +32,22 @@ public sealed class JwtOptions
                 "Jwt:AccessTokenExpireMinutes must be greater than zero.");
         }
 
-        if (RefreshTokenExpireDays <= 0)
+        if (RefreshTokenIdleExpireDays <= 0)
         {
             throw new InvalidOperationException(
-                "Jwt:RefreshTokenExpireDays must be greater than zero.");
+                "Jwt:RefreshTokenIdleExpireDays must be greater than zero.");
+        }
+
+        if (RefreshSessionAbsoluteExpireDays < RefreshTokenIdleExpireDays)
+        {
+            throw new InvalidOperationException(
+                "Jwt:RefreshSessionAbsoluteExpireDays must be greater than or equal to Jwt:RefreshTokenIdleExpireDays.");
+        }
+
+        if (RefreshTokenReuseGraceSeconds < 0)
+        {
+            throw new InvalidOperationException(
+                "Jwt:RefreshTokenReuseGraceSeconds cannot be negative.");
         }
     }
 }

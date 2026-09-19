@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Siuden.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Siuden.Infrastructure.Persistence;
 namespace Siuden.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SiudenRetailDbContext))]
-    partial class SiudenRetailDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260919035128_Estructura inicial MVP")]
+    partial class EstructurainicialMVP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -359,7 +362,7 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     b.ToTable("ProductImages", (string)null);
                 });
 
-            modelBuilder.Entity("Siuden.Domain.Entities.ProductVarient", b =>
+            modelBuilder.Entity("Siuden.Domain.Entities.ProductVariant", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -368,7 +371,6 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BarCode")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
@@ -378,10 +380,10 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("DepthCm")
+                    b.Property<decimal?>("DepthCm")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("HeightCm")
+                    b.Property<decimal?>("HeightCm")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("Price")
@@ -391,7 +393,6 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Sku")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
@@ -401,15 +402,15 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("VarientName")
+                    b.Property<string>("VariantName")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<decimal>("WeightKg")
+                    b.Property<decimal?>("WeightKg")
                         .HasColumnType("numeric");
 
-                    b.Property<decimal>("WidthCm")
+                    b.Property<decimal?>("WidthCm")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
@@ -444,6 +445,7 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("RevokedAt")
+                        .IsConcurrencyToken()
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("RoleCode")
@@ -716,10 +718,10 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Siuden.Domain.Entities.ProductVarient", b =>
+            modelBuilder.Entity("Siuden.Domain.Entities.ProductVariant", b =>
                 {
                     b.HasOne("Siuden.Domain.Entities.Product", "Product")
-                        .WithMany("ProductVarients")
+                        .WithMany("ProductVariants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -819,7 +821,7 @@ namespace Siuden.Infrastructure.Persistence.Migrations
 
                     b.Navigation("ProductImages");
 
-                    b.Navigation("ProductVarients");
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("Siuden.Domain.Entities.Role", b =>
