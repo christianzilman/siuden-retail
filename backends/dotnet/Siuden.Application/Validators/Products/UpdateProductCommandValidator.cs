@@ -24,7 +24,10 @@ public class UpdateProductCommandValidator: AbstractValidator<UpdateProductComma
             .MaximumLength(200);
 
         RuleFor(x => x.Product.Description)
-            .MaximumLength(5000);
+            .MaximumLength(500);
+
+        RuleFor(x => x.Product.Status)
+            .IsInEnum();
 
         RuleFor(x => x.Product.SeoTitle)
             .MaximumLength(200);
@@ -99,6 +102,13 @@ public class UpdateProductCommandValidator: AbstractValidator<UpdateProductComma
                     .Count() == categories.Count)
             .WithMessage(
                 "La misma categoría no puede enviarse más de una vez.");
+
+        RuleForEach(x => x.Product.Categories)
+            .ChildRules(category =>
+            {
+                category.RuleFor(x => x.CategoryId).NotEmpty();
+                category.RuleFor(x => x.SortOrder).GreaterThanOrEqualTo(0);
+            });
 
         // Máximo una categoría principal.
         RuleFor(x => x.Product.Categories)

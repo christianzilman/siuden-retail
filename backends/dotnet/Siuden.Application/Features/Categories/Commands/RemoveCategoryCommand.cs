@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 namespace Siuden.Application.Features.Categories.Commands;
 
 public record RemoveCategoryCommand(
-    string TenantSlug,
+    Guid TenantId,
     Guid Id
 ) : IRequest;

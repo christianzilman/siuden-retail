@@ -21,6 +21,28 @@ public class CategoryRepository : RepositoryBase<Category, Guid>, ICategoryRepos
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> AllBelongToTenantAsync(
+        Guid tenantId,
+        IReadOnlyCollection<Guid> categoryIds,
+        CancellationToken cancellationToken = default)
+    {
+        var distinctIds = categoryIds.Distinct().ToArray();
+        if (distinctIds.Length == 0)
+        {
+            return true;
+        }
+
+        var matchingCount = await Context.Categories
+            .AsNoTracking()
+            .CountAsync(
+                category =>
+                    category.TenantId == tenantId &&
+                    distinctIds.Contains(category.Id),
+                cancellationToken);
+
+        return matchingCount == distinctIds.Length;
+    }
+
     public Task<bool> ExistsBySlugAsync(
     Guid tenantId,
     string slug,

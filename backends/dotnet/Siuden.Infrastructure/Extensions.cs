@@ -23,11 +23,8 @@ public static class Extensions
 
         //repository
 
-        services.AddScoped<IProductRepository>(sp =>
-            sp.GetRequiredService<ProductRepository>());
-
-        services.AddScoped<IProductReadRepository>(sp =>
-            sp.GetRequiredService<ProductReadRepository>());
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductReadRepository, ProductReadRepository>();
 
 
         services.AddScoped<IUserRepository, UserRepository>();

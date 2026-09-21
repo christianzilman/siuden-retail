@@ -4,7 +4,7 @@ using Siuden.Application.Features.Categories.DTOs;
 namespace Siuden.Application.Features.Categories.Commands;
 
 public record CreateCategoryCommand(
-    string TenantSlug,
+    Guid TenantId,
     Guid? ParentId,
     string Name,
     string Slug,

@@ -13,7 +13,10 @@ using System.Text.RegularExpressions;
 
 namespace Siuden.Infrastructure.Services;
 
-public class ProductService(IProductReadRepository productReadRepository, IProductRepository productRepository) : IProductService
+public class ProductService(
+    IProductReadRepository productReadRepository,
+    IProductRepository productRepository,
+    ICategoryRepository categoryRepository) : IProductService
 {
     public async Task<PagedResult<ProductListItemDto>> GetPagedAsync(
         ProductSearchCriteria productSearchCriteria, 
@@ -31,10 +34,26 @@ public class ProductService(IProductReadRepository productReadRepository, IProdu
             cancellationToken);
     }
 
+    public Task<AdminProductDetailDto?> GetAdminByIdAsync(
+        Guid tenantId,
+        long productId,
+        CancellationToken cancellationToken = default)
+    {
+        return productReadRepository.GetAdminByIdAsync(
+            tenantId,
+            productId,
+            cancellationToken);
+    }
+
     public async Task<long> CreateAsync(
         CreateProductData data,
         CancellationToken cancellationToken = default)
     {
+        await EnsureCategoriesBelongToTenantAsync(
+            data.TenantId,
+            data.Categories.Select(item => item.CategoryId).ToArray(),
+            cancellationToken);
+
         var slug = await GenerateUniqueSlugAsync(
             data.TenantId,
             data.Name,
@@ -46,11 +65,11 @@ public class ProductService(IProductReadRepository productReadRepository, IProdu
         {
             TenantId = data.TenantId,
             Name = data.Name.Trim(),
-            Description = data.Description,
+            Description = data.Description.Trim(),
             Status = data.Status,
             Slug = slug,
-            SeoTitle = data.SeoTitle,
-            SeoDescription = data.SeoDescription
+            SeoTitle = data.SeoTitle?.Trim() ?? string.Empty,
+            SeoDescription = data.SeoDescription?.Trim() ?? string.Empty
         };
 
         foreach (var variant in data.Variants)
@@ -220,6 +239,11 @@ public class ProductService(IProductReadRepository productReadRepository, IProdu
 
     public async Task UpdateAsync(long productId, UpdateProductData data, CancellationToken cancellationToken = default)
     {
+        await EnsureCategoriesBelongToTenantAsync(
+            data.TenantId,
+            data.Categories.Select(item => item.CategoryId).ToArray(),
+            cancellationToken);
+
         var product = await productRepository.GetAggregateAsync(
         data.TenantId,
         productId,
@@ -228,10 +252,10 @@ public class ProductService(IProductReadRepository productReadRepository, IProdu
 
         // Product
         product.Name = data.Name.Trim();
-        product.Description = data.Description;
+        product.Description = data.Description.Trim();
         product.Status = data.Status;
-        product.SeoTitle = data.SeoTitle;
-        product.SeoDescription = data.SeoDescription;
+        product.SeoTitle = data.SeoTitle?.Trim() ?? string.Empty;
+        product.SeoDescription = data.SeoDescription?.Trim() ?? string.Empty;
 
         product.Slug = await GenerateUniqueSlugAsync(
             data.TenantId,
@@ -367,5 +391,20 @@ public class ProductService(IProductReadRepository productReadRepository, IProdu
         await productRepository.DeleteAsync(
                 product,
                 cancellationToken);
+    }
+
+    private async Task EnsureCategoriesBelongToTenantAsync(
+        Guid tenantId,
+        IReadOnlyCollection<Guid> categoryIds,
+        CancellationToken cancellationToken)
+    {
+        if (!await categoryRepository.AllBelongToTenantAsync(
+                tenantId,
+                categoryIds,
+                cancellationToken))
+        {
+            throw new NotFoundException(
+                "One or more product categories were not found.");
+        }
     }
 }

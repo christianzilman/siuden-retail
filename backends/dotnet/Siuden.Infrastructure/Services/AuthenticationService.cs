@@ -145,8 +145,13 @@ public sealed class AuthenticationService : IAuthenticationService
 
         if (storedSession.ExpiresAt <= now || idleExpiresAtUtc <= now)
         {
-            storedSession.RevokedAt = now;
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.RefreshSessions
+                .Where(item =>
+                    item.Id == storedSession.Id &&
+                    item.RevokedAt == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(item => item.RevokedAt, now),
+                    cancellationToken);
             throw new UnauthorizedException("La sesión venció");
         }
 
@@ -169,19 +174,31 @@ public sealed class AuthenticationService : IAuthenticationService
             absoluteExpiresAtUtc,
             now);
 
-        storedSession.RevokedAt = now;
-        storedSession.ReplacedBySessionId = replacement.Entity.Id;
-        _context.RefreshSessions.Add(replacement.Entity);
-
         var accessToken = _jwtService.GenerateToken(session);
-        try
+        await using var transaction = await _context.Database
+            .BeginTransactionAsync(cancellationToken);
+
+        var claimedSessions = await _context.RefreshSessions
+            .Where(item =>
+                item.Id == storedSession.Id &&
+                item.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(item => item.RevokedAt, now)
+                    .SetProperty(
+                        item => item.ReplacedBySessionId,
+                        replacement.Entity.Id),
+                cancellationToken);
+
+        if (claimedSessions == 0)
         {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
+            await transaction.RollbackAsync(cancellationToken);
             throw new UnauthorizedException("La sesión ya fue actualizada");
         }
+
+        _context.RefreshSessions.Add(replacement.Entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return ToLoginResult(session, accessToken, replacement);
     }
@@ -196,16 +213,14 @@ public sealed class AuthenticationService : IAuthenticationService
         }
 
         var tokenHash = HashToken(refreshToken);
-        var storedSession = await _context.RefreshSessions
-            .SingleOrDefaultAsync(session => session.TokenHash == tokenHash, cancellationToken);
-
-        if (storedSession is null || storedSession.RevokedAt.HasValue)
-        {
-            return;
-        }
-
-        storedSession.RevokedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync(cancellationToken);
+        var revokedAt = DateTime.UtcNow;
+        await _context.RefreshSessions
+            .Where(session =>
+                session.TokenHash == tokenHash &&
+                session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAt),
+                cancellationToken);
     }
 
     private async Task<User> FindAndVerifyUserAsync(
@@ -368,17 +383,14 @@ public sealed class AuthenticationService : IAuthenticationService
 
     private async Task RevokeFamilyAsync(Guid familyId, CancellationToken cancellationToken)
     {
-        var activeSessions = await _context.RefreshSessions
-            .Where(session => session.FamilyId == familyId && session.RevokedAt == null)
-            .ToListAsync(cancellationToken);
-
         var revokedAt = DateTime.UtcNow;
-        foreach (var session in activeSessions)
-        {
-            session.RevokedAt = revokedAt;
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.RefreshSessions
+            .Where(session =>
+                session.FamilyId == familyId &&
+                session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAt),
+                cancellationToken);
     }
 
     private static LoginResultDto ToLoginResult(

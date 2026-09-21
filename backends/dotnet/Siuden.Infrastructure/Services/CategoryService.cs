@@ -26,10 +26,8 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         CreateCategoryCommand command,
         CancellationToken cancellationToken = default)
     {
-        var tenant = await GetActiveTenantAsync(command.TenantSlug, cancellationToken);
-
         if (await categoryRepository.ExistsBySlugAsync(
-                tenant.Id,
+                command.TenantId,
                 command.Slug,
                 cancellationToken: cancellationToken))
         {
@@ -40,7 +38,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         if (command.ParentId.HasValue)
         {
             var parent = await categoryRepository.GetByIdAsync(
-                tenant.Id,
+                command.TenantId,
                 command.ParentId.Value,
                 cancellationToken);
 
@@ -54,7 +52,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         var category = new Category
         {
             Id = Guid.NewGuid(),
-            TenantId = tenant.Id,
+            TenantId = command.TenantId,
             ParentId = command.ParentId,
             Name = command.Name.Trim(),
             Slug = command.Slug.Trim().ToLowerInvariant(),
@@ -74,10 +72,8 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         UpdateCategoryCommand command,
         CancellationToken cancellationToken = default)
     {
-        var tenant = await GetActiveTenantAsync(command.TenantSlug, cancellationToken);
-
         var category = await categoryRepository.GetByIdAsync(
-            tenant.Id,
+            command.TenantId,
             command.Id,
             cancellationToken);
 
@@ -88,7 +84,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         }
 
         if (await categoryRepository.ExistsBySlugAsync(
-                tenant.Id,
+                command.TenantId,
                 command.Slug,
                 category.Id,
                 cancellationToken))
@@ -98,7 +94,7 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         }
 
         await ValidateParentAsync(
-            tenant.Id,
+            command.TenantId,
             category.Id,
             command.ParentId,
             cancellationToken);
@@ -119,10 +115,8 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         RemoveCategoryCommand command,
         CancellationToken cancellationToken = default)
     {
-        var tenant = await GetActiveTenantAsync(command.TenantSlug, cancellationToken);
-
         var category = await categoryRepository.GetByIdAsync(
-            tenant.Id,
+            command.TenantId,
             command.Id,
             cancellationToken);
 
@@ -142,10 +136,8 @@ public class CategoryService(ICategoryRepository categoryRepository, ITenantRepo
         ReorderCategoriesCommand command,
         CancellationToken cancellationToken = default)
     {
-        var tenant = await GetActiveTenantAsync(command.TenantSlug, cancellationToken);
-
         var categories = await categoryRepository.GetAllAsync(
-            tenant.Id,
+            command.TenantId,
             cancellationToken);
 
         var categoryMap = categories.ToDictionary(x => x.Id);

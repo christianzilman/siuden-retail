@@ -9,6 +9,6 @@ using System.Threading.Tasks;
 namespace Siuden.Application.Features.Categories.Commands;
 
 public record ReorderCategoriesCommand(
-    string TenantSlug,
+    Guid TenantId,
     ICollection<ReorderCategoryItem> Items
 ) : IRequest<ICollection<CategoryDto>>;

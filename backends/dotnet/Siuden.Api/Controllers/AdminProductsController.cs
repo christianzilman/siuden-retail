@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Siuden.Api.Contracts.Common;
 using Siuden.Api.Contracts.Products;
 using Siuden.Api.Mappings;
+using Siuden.Api.Security;
+using Siuden.Application.Common.Security;
 using Siuden.Application.Features.Products.Commands;
 using Siuden.Application.Features.Products.DTOs;
 using Siuden.Application.Features.Products.Queries;
@@ -16,16 +18,17 @@ namespace Siuden.Api.Controllers;
 [Authorize(Roles = $"{GlobalRoles.Owner},{GlobalRoles.Admin}")]
 [Route("api/admin/products")]
 public class AdminProductsController(
-    IMediator mediator,
-    ICurrentTenant currentTenant)
+    IMediator mediator)
     : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<AdminProductListItemDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetAll([FromQuery] GetAdminProductsRequest request)
+    public async Task<ActionResult<PagedResponse<AdminProductListItemDto>>> GetAll(
+        [FromQuery] GetAdminProductsRequest request,
+        CancellationToken cancellationToken)
     {
         var query = new GetAdminProductsQuery(
-            currentTenant.TenantId,
+            User.GetRequiredGuid(AuthClaimTypes.TenantId),
             request.Name,
             request.Sku,
             request.CategoryId,
@@ -35,18 +38,35 @@ public class AdminProductsController(
             request.Paging.PageNumber,
             request.Paging.PageSize);
 
-        var result = await mediator.Send(query);
+        var result = await mediator.Send(query, cancellationToken);
 
         return Ok(result.ToResponse());
     }
 
+    [HttpGet("{productId:long}")]
+    [ProducesResponseType(typeof(AdminProductDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AdminProductDetailDto>> GetById(
+        [FromRoute] long productId,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+            new GetAdminProductByIdQuery(
+                User.GetRequiredGuid(AuthClaimTypes.TenantId),
+                productId),
+            cancellationToken);
+
+        return Ok(result);
+    }
 
     [HttpPost]
+    [ProducesResponseType(typeof(long), StatusCodes.Status201Created)]
     public async Task<ActionResult<long>> Create(
-    [FromBody] CreateProductRequest request)
+        [FromBody] CreateProductRequest request,
+        CancellationToken cancellationToken)
     {
         var product = new CreateProductData(
-            currentTenant.TenantId,
+            User.GetRequiredGuid(AuthClaimTypes.TenantId),
             request.Name,
             request.Description,
             request.Status,
@@ -73,9 +93,10 @@ public class AdminProductsController(
                 .ToList());
 
         var id = await mediator.Send(
-            new CreateProductCommand(product));
+            new CreateProductCommand(product),
+            cancellationToken);
 
-        return Ok(id);
+        return CreatedAtAction(nameof(GetById), new { productId = id }, id);
     }
 
     [HttpPatch("{productId:long}/status")]
@@ -83,14 +104,15 @@ public class AdminProductsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ChangeStatus(
        [FromRoute] long productId,
-       [FromBody] ChangeProductStatusRequest request)
+       [FromBody] ChangeProductStatusRequest request,
+       CancellationToken cancellationToken)
     {
         var command = new ChangeProductStatusCommand(
-            currentTenant.TenantId,
+            User.GetRequiredGuid(AuthClaimTypes.TenantId),
             productId,
             request.Status);
 
-        await mediator.Send(command);
+        await mediator.Send(command, cancellationToken);
 
         return NoContent();
     }
@@ -101,10 +123,11 @@ public class AdminProductsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
     [FromRoute] long productId,
-    [FromBody] UpdateProductRequest request)
+    [FromBody] UpdateProductRequest request,
+    CancellationToken cancellationToken)
     {
         var data = new UpdateProductData(
-            currentTenant.TenantId,
+            User.GetRequiredGuid(AuthClaimTypes.TenantId),
             request.Name,
             request.Description,
             request.Status,
@@ -134,7 +157,8 @@ public class AdminProductsController(
         await mediator.Send(
             new UpdateProductCommand(
                 productId,
-                data));
+                data),
+            cancellationToken);
 
         return NoContent();
     }
@@ -144,12 +168,14 @@ public class AdminProductsController(
     [ProducesResponseType(typeof(long), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<long>> Duplicate(
-        [FromRoute] long productId)
+        [FromRoute] long productId,
+        CancellationToken cancellationToken)
     {
         var duplicatedProductId = await mediator.Send(
             new DuplicateProductCommand(
-                currentTenant.TenantId,
-                productId));
+                User.GetRequiredGuid(AuthClaimTypes.TenantId),
+                productId),
+            cancellationToken);
 
         return StatusCode(
             StatusCodes.Status201Created,
@@ -161,18 +187,15 @@ public class AdminProductsController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(
-        [FromRoute] long productId)
+        [FromRoute] long productId,
+        CancellationToken cancellationToken)
     {
         await mediator.Send(
             new DeleteProductCommand(
-                currentTenant.TenantId,
-                productId));
+                User.GetRequiredGuid(AuthClaimTypes.TenantId),
+                productId),
+            cancellationToken);
 
         return NoContent();
     }
-}
-
-public interface ICurrentTenant
-{
-    Guid TenantId { get; }
 }

@@ -20,7 +20,8 @@ public class ProductsController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PagedResponse<ProductListItemDto>>> GetAll(
         [FromRoute] string tenantSlug,
-        [FromQuery] GetProductsRequest request)
+        [FromQuery] GetProductsRequest request,
+        CancellationToken cancellationToken)
     {
         var query = new GetProductsQuery(
             tenantSlug,
@@ -29,7 +30,7 @@ public class ProductsController(IMediator mediator) : ControllerBase
             request.Paging.PageNumber,
             request.Paging.PageSize);
 
-        var result = await mediator.Send(query);
+        var result = await mediator.Send(query, cancellationToken);
 
         return Ok(result.ToResponse());
     }

@@ -24,6 +24,11 @@ public interface ICategoryRepository : IAsyncRepository<Category, Guid>
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> AllBelongToTenantAsync(
+        Guid tenantId,
+        IReadOnlyCollection<Guid> categoryIds,
+        CancellationToken cancellationToken = default);
+
     Task UpdateRangeAsync(
         IEnumerable<Category> categories,
         CancellationToken cancellationToken = default);

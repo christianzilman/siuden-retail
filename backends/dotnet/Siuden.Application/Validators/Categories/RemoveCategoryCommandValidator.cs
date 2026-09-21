@@ -8,10 +8,7 @@ public sealed class RemoveCategoryCommandValidator
 {
     public RemoveCategoryCommandValidator()
     {
-        RuleFor(x => x.TenantSlug)
-            .NotEmpty()
-            .MaximumLength(100)
-            .Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$");
+        RuleFor(x => x.TenantId).NotEmpty();
 
         RuleFor(x => x.Id)
             .NotEmpty();

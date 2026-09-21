@@ -13,9 +13,24 @@ public class CreateProductCommandValidator
 {
     public CreateProductCommandValidator()
     {
+        RuleFor(x => x.Product.TenantId)
+            .NotEmpty();
+
         RuleFor(x => x.Product.Name)
             .NotEmpty()
             .MaximumLength(200);
+
+        RuleFor(x => x.Product.Description)
+            .MaximumLength(500);
+
+        RuleFor(x => x.Product.Status)
+            .IsInEnum();
+
+        RuleFor(x => x.Product.SeoTitle)
+            .MaximumLength(200);
+
+        RuleFor(x => x.Product.SeoDescription)
+            .MaximumLength(500);
 
         RuleFor(x => x.Product.Variants)
             .NotEmpty()
@@ -24,11 +39,53 @@ public class CreateProductCommandValidator
         RuleForEach(x => x.Product.Variants)
             .ChildRules(variant =>
             {
+                variant.RuleFor(x => x.VariantName)
+                    .NotEmpty()
+                    .MaximumLength(200);
+
+                variant.RuleFor(x => x.Sku)
+                    .MaximumLength(100);
+
+                variant.RuleFor(x => x.BarCode)
+                    .MaximumLength(100);
+
                 variant.RuleFor(x => x.Price)
                     .GreaterThanOrEqualTo(0);
 
                 variant.RuleFor(x => x.Stock)
                     .GreaterThanOrEqualTo(0);
+
+                variant.RuleFor(x => x.Cost)
+                    .GreaterThanOrEqualTo(0);
+
+                variant.RuleFor(x => x.WeightKg)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.WeightKg.HasValue);
+
+                variant.RuleFor(x => x.HeightCm)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.HeightCm.HasValue);
+
+                variant.RuleFor(x => x.WidthCm)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.WidthCm.HasValue);
+
+                variant.RuleFor(x => x.DepthCm)
+                    .GreaterThanOrEqualTo(0)
+                    .When(x => x.DepthCm.HasValue);
+            });
+
+        RuleFor(x => x.Product.Categories)
+            .Must(categories =>
+                categories.Select(item => item.CategoryId).Distinct().Count() ==
+                categories.Count)
+            .WithMessage("La misma categoría no puede enviarse más de una vez.");
+
+        RuleForEach(x => x.Product.Categories)
+            .ChildRules(category =>
+            {
+                category.RuleFor(x => x.CategoryId).NotEmpty();
+                category.RuleFor(x => x.SortOrder).GreaterThanOrEqualTo(0);
             });
 
         RuleFor(x => x.Product.Categories)

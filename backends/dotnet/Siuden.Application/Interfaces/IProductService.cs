@@ -19,6 +19,10 @@ public interface IProductService
     Task<PagedResult<AdminProductListItemDto>> GetAdminPagedAsync(
         AdminProductSearchCriteria criteria,
         CancellationToken cancellationToken = default);
+    Task<AdminProductDetailDto?> GetAdminByIdAsync(
+        Guid tenantId,
+        long productId,
+        CancellationToken cancellationToken = default);
     Task<long> CreateAsync(
         CreateProductData product,
         CancellationToken cancellationToken = default);

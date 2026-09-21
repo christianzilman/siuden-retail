@@ -3,7 +3,7 @@ import { useAuthStore } from "@/features/auth/store";
 import type { LoginResult } from "@/features/auth/types";
 
 const clientOptions = {
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:5112",
+  baseURL: import.meta.env.VITE_API_URL ?? "/",
   withCredentials: true,
 };
 

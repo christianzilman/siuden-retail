@@ -4,7 +4,7 @@ using Siuden.Application.Features.Categories.DTOs;
 namespace Siuden.Application.Features.Categories.Commands;
 
 public record UpdateCategoryCommand(
-    string TenantSlug,
+    Guid TenantId,
     Guid Id,
     Guid? ParentId,
     string Name,

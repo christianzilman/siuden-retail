@@ -13,12 +13,7 @@ public sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCat
 {
     public CreateCategoryCommandValidator()
     {
-        RuleFor(x => x.TenantSlug)
-            .NotEmpty()
-            .MaximumLength(100)
-            .Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$")
-            .Must(slug => !TenantSlugPolicy.IsReserved(slug))
-            .WithMessage("El slug está reservado por la plataforma");
+        RuleFor(x => x.TenantId).NotEmpty();
 
         RuleFor(x => x.Name)
             .NotEmpty()

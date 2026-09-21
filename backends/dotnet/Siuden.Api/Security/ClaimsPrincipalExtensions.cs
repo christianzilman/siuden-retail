@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Siuden.Application.Common.Exceptions;
 
 namespace Siuden.Api.Security;
 
@@ -9,7 +10,7 @@ public static class ClaimsPrincipalExtensions
         var value = principal.FindFirstValue(claimType);
         return Guid.TryParse(value, out var id)
             ? id
-            : throw new InvalidOperationException(
+            : throw new UnauthorizedException(
                 $"La identidad no contiene el claim requerido '{claimType}'.");
     }
 }
