@@ -14,6 +14,6 @@ public class GetAllCategoriesQueryHandler(ICategoryService categoryService) : IR
 {
     public async Task<ICollection<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        return await categoryService.GetAllByTenant(request.TenantSlug);
+        return await categoryService.GetAllByTenant(request.TenantSlug, cancellationToken);
     }
 }

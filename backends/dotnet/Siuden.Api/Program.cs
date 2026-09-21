@@ -131,6 +131,9 @@ if (corsEnabled)
 app.UseAuthentication();
 app.UseAuthorization();
 
+///images
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();

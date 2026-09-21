@@ -9,5 +9,22 @@ namespace Siuden.Domain.Repositories;
 
 public interface ICategoryRepository : IAsyncRepository<Category, Guid>
 {
-    Task<ICollection<Category>> GetAllByTenant(string tenantSlug);
+    Task<Category?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsBySlugAsync(
+        Guid tenantId,
+        string slug,
+        Guid? excludeId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Category>> GetAllAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+
+    Task UpdateRangeAsync(
+        IEnumerable<Category> categories,
+        CancellationToken cancellationToken = default);
 }

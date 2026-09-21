@@ -9,4 +9,10 @@ namespace Siuden.Domain.Repositories;
 
 public interface IProductRepository : IAsyncRepository<Product, long>
 {
+    Task<Product?> GetAggregateAsync(Guid tenantId, long productId, CancellationToken cancellationToken);
+    Task<bool> SlugExistsAsync(
+        Guid tenantId,
+        string slug,
+        long? excludingProductId,
+        CancellationToken cancellationToken);
 }

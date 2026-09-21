@@ -22,13 +22,12 @@ public static class Extensions
             options.UseNpgsql(connectionString));
 
         //repository
-        services.AddScoped<ProductRepository>();
 
         services.AddScoped<IProductRepository>(sp =>
             sp.GetRequiredService<ProductRepository>());
 
         services.AddScoped<IProductReadRepository>(sp =>
-            sp.GetRequiredService<ProductRepository>());
+            sp.GetRequiredService<ProductReadRepository>());
 
 
         services.AddScoped<IUserRepository, UserRepository>();

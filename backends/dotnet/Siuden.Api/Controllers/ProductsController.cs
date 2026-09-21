@@ -26,8 +26,8 @@ public class ProductsController(IMediator mediator) : ControllerBase
             tenantSlug,
             request.CategoryId,
             request.SortBy,
-            request.PageNumber,
-            request.PageSize);
+            request.Paging.PageNumber,
+            request.Paging.PageSize);
 
         var result = await mediator.Send(query);
 

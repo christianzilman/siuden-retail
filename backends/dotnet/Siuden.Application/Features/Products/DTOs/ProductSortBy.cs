@@ -5,5 +5,7 @@ public enum ProductSortBy
     Newest = 1,
     Oldest = 2,
     PriceAsc = 3,
-    PriceDesc = 4
+    PriceDesc = 4,
+    NameAsc = 5,
+    NameDesc = 6
 }

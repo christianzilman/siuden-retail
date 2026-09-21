@@ -9,7 +9,7 @@ namespace Siuden.Domain.Entities;
 public class Category: AuditableEntity<Guid>
 {
     public Guid TenantId { get; set; }
-    public Tenant Tenant { get; set; }
+    public Tenant Tenant { get; set; } = null!;
     public Guid? ParentId { get; set; }
     public Category? Parent { get; set; }
     public ICollection<Category> Children { get; set; } = [];

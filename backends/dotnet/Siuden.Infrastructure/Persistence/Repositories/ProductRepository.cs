@@ -14,51 +14,35 @@ using System.Threading.Tasks;
 
 namespace Siuden.Infrastructure.Persistence.Repositories;
 
-public class ProductRepository : RepositoryBase<Product, long> ,IProductRepository, IProductReadRepository
+public class ProductRepository : RepositoryBase<Product, long> , IProductRepository
 {
     public ProductRepository(SiudenRetailDbContext context) : base(context)
     {
     }
-    public async Task<PagedResult<ProductListItemDto>> GetPagedAsync(ProductSearchCriteria criteria, CancellationToken cancellationToken = default)
+
+    public async Task<Product?> GetAggregateAsync(Guid tenantId, long productId, CancellationToken cancellationToken)
     {
-        var query = Context.Products
-        .AsNoTracking()
-        .ApplyFilter(criteria);
+        return await Context.Products
+            .Include(x => x.ProductVariants)
+            .Include(x => x.ProductCategories)
+            .Include(x => x.ProductImages)
+            .FirstOrDefaultAsync(
+                x =>
+                    x.Id == productId &&
+                    x.TenantId == tenantId,
+                cancellationToken);
+    }
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query
-            .ApplySorting(criteria.SortBy)
-            .ApplyPagination(
-                criteria.PageNumber,
-                criteria.PageSize)
-            .Select(x => new ProductListItemDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                Slug = x.Slug,
-
-                Price = x.ProductVariants
-                    .Min(v => v.Price),
-
-                Stock = x.ProductVariants
-                    .Sum(v => v.Stock),
-
-                ImageUrl = x.ProductImages
-                    .Where(i => i.IsPrimary)
-                    .OrderBy(i => i.SortOrder)
-                    .Select(i => i.Url)
-                    .FirstOrDefault(),
-
-                CreatedAt = x.CreatedAt
-            })
-            .ToListAsync(cancellationToken);
-
-        return new PagedResult<ProductListItemDto>(
-            items,
-            criteria.PageNumber,
-            criteria.PageSize,
-            totalCount);
+    public async Task<bool> SlugExistsAsync(Guid tenantId, string slug, long? excludingProductId, CancellationToken cancellationToken)
+    {
+        return await Context.Products
+            .AsNoTracking()
+            .AnyAsync(
+                x =>
+                    x.TenantId == tenantId &&
+                    x.Slug == slug &&
+                    (!excludingProductId.HasValue ||
+                    x.Id != excludingProductId.Value),
+                cancellationToken);
     }
 }

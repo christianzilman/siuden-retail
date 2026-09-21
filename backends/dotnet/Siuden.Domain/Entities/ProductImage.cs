@@ -8,7 +8,8 @@ namespace Siuden.Domain.Entities;
 
 public class ProductImage: AuditableEntity<long>
 {
-    public string Url { get; set; }
+    public string Url { get; set; } = string.Empty;
+    public string StorageKey { get; set; } = string.Empty;
     public bool IsPrimary { get; set; }
     public int SortOrder { get; set; }
     public long ProductId { get; set; }
