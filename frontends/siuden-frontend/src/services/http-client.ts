@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { useAuthStore } from "@/features/auth/store";
-import type { LoginResult } from "@/features/auth/types";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import type { LoginResult } from "@/features/auth/types/auth.types";
 
 const clientOptions = {
   baseURL: import.meta.env.VITE_API_URL ?? "/",

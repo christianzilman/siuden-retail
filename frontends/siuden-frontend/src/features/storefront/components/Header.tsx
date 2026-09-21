@@ -1,13 +1,62 @@
 import { AuthDialog } from "@/features/auth/components/AuthDialog";
-import { products } from "@/features/catalog/data/mocks";
+import type { Category, Product } from "@/features/catalog/types/catalog.types";
+import {
+  categoryProductsHref,
+  flattenCategories,
+} from "@/features/catalog/utils/catalog.utils";
 import { formatPrice } from "@/lib/format";
-import { X, Search, Camera, Menu } from "lucide-react";
+import { ChevronDown, X, Search, Camera, Menu } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { logout } from "@/features/auth/api";
-import { useAuthStore } from "@/features/auth/store";
+import { logout } from "@/features/auth/api/auth.api";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import { Link, useLocation } from "react-router-dom";
 
-export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
+interface CategoryMenuItemsProps {
+  categories: Category[];
+  tenantSlug: string;
+}
+
+const CategoryMenuItems = ({ categories, tenantSlug }: CategoryMenuItemsProps) =>
+  categories
+    .filter((category) => category.isVisible)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((category) => (
+      <div className="group/category-item relative" key={category.id}>
+        <Link
+          className="flex min-h-11 items-center justify-between gap-4 px-4 py-2.5 text-sm transition-colors hover:bg-[var(--store-background)] hover:text-[var(--store-primary)]"
+          to={categoryProductsHref(tenantSlug, category)}
+        >
+          {category.name}
+          {category.children.some((child) => child.isVisible) ? (
+            <ChevronDown className="size-4 -rotate-90" />
+          ) : null}
+        </Link>
+        {category.children.some((child) => child.isVisible) ? (
+          <div className="absolute left-full top-0 z-10 hidden min-w-56 border-l border-[var(--store-hairline)] bg-[var(--store-surface)] p-2 shadow-[0_18px_45px_rgb(0_0_0_/_0.12)] group-hover/category-item:block group-focus-within/category-item:block">
+            <CategoryMenuItems
+              categories={category.children}
+              tenantSlug={tenantSlug}
+            />
+          </div>
+        ) : null}
+      </div>
+    ));
+
+interface HeaderProps {
+  categories: Category[];
+  products: Product[];
+  tenantName: string;
+  tenantSlug: string;
+}
+
+export const Header = ({
+  categories,
+  products,
+  tenantName,
+  tenantSlug,
+}: HeaderProps) => {
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -23,12 +72,12 @@ export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
     () =>
       products
         .filter((product) =>
-          `${product.name} ${product.material}`
+          `${product.name} ${product.description ?? ""}`
             .toLowerCase()
             .includes(query.toLowerCase()),
         )
         .slice(0, 5),
-    [query],
+    [products, query],
   );
 
   return (
@@ -61,17 +110,35 @@ export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
       </div>
       <header className="sticky top-0 z-40 border-b border-[var(--store-hairline)] bg-[color:rgb(248_246_241_/_0.94)] backdrop-blur-md">
         <div className="mx-auto flex h-20 w-[min(100%-2rem,86rem)] items-center justify-between gap-5 lg:h-24">
-          <a className="flex items-center gap-3" href="#inicio">
+          <Link
+            className="flex items-center gap-3"
+            to={`/${tenantSlug}#inicio`}
+          >
             <span className="grid size-9 place-items-center rounded-full border border-[var(--store-accent)] font-serif text-xl italic text-[var(--store-primary)]">
-              R
+              {tenantName.trim().charAt(0).toLocaleUpperCase("es") || "S"}
             </span>
-            <span className="font-serif text-3xl tracking-[.08em]">Rubí</span>
-          </a>
+            <span className="font-serif text-3xl tracking-[.08em]">
+              {tenantName}
+            </span>
+          </Link>
           <nav className="hidden items-center gap-9 text-sm lg:flex">
-            <a href="#inicio">Inicio</a>
-            <a href="#productos">Productos</a>
-            <a href="#categorias">Categorías</a>
-            <a href="#contacto">Contacto</a>
+            <Link to={`/${tenantSlug}#inicio`}>Inicio</Link>
+            <Link to={`/${tenantSlug}/productos`}>Productos</Link>
+            <details
+              className="group/category-menu relative"
+              key={location.key}
+            >
+              <summary className="flex cursor-pointer list-none items-center gap-1.5">
+                Categorías <ChevronDown className="size-4" />
+              </summary>
+              <div className="absolute left-1/2 top-[calc(100%+1.5rem)] hidden w-56 -translate-x-1/2 bg-[var(--store-surface)] p-2 shadow-[0_18px_45px_rgb(0_0_0_/_0.12)] group-open/category-menu:block">
+                <CategoryMenuItems
+                  categories={categories}
+                  tenantSlug={tenantSlug}
+                />
+              </div>
+            </details>
+            <Link to={`/${tenantSlug}#contacto`}>Contacto</Link>
           </nav>
           <div className="flex items-center gap-1">
             <button
@@ -123,8 +190,8 @@ export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
                   >
                     <span>
                       {product.name}
-                      <small className="block text-[var(--store-muted)]">
-                        {product.material}
+                      <small className="block max-w-80 truncate text-[var(--store-muted)]">
+                        {product.description || "Producto del catálogo"}
                       </small>
                     </span>
                     <span>{formatPrice(product.price)}</span>
@@ -145,18 +212,29 @@ export const Header = ({ tenantSlug }: { tenantSlug: string }) => {
             <X />
           </button>
           <nav className="mt-12 grid gap-7 font-serif text-4xl">
-            <a href="#inicio" onClick={() => setMenuOpen(false)}>
+            <Link to={`/${tenantSlug}#inicio`} onClick={() => setMenuOpen(false)}>
               Inicio
-            </a>
-            <a href="#productos" onClick={() => setMenuOpen(false)}>
+            </Link>
+            <Link to={`/${tenantSlug}/productos`} onClick={() => setMenuOpen(false)}>
               Productos
-            </a>
-            <a href="#categorias" onClick={() => setMenuOpen(false)}>
+            </Link>
+            <Link to={`/${tenantSlug}#categorias`} onClick={() => setMenuOpen(false)}>
               Categorías
-            </a>
-            <a href="#contacto" onClick={() => setMenuOpen(false)}>
+            </Link>
+            <div className="grid gap-3 border-l border-white/20 pl-4 font-sans text-base text-white/70">
+              {flattenCategories(categories).map((category) => (
+                <Link
+                  to={categoryProductsHref(tenantSlug, category)}
+                  onClick={() => setMenuOpen(false)}
+                  key={category.id}
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+            <Link to={`/${tenantSlug}#contacto`} onClick={() => setMenuOpen(false)}>
               Contacto
-            </a>
+            </Link>
           </nav>
         </div>
       ) : null}

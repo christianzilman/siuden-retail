@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react";
-import { refreshSession } from "../api";
-import { useAuthStore } from "../store";
+import { refreshSession } from "../api/auth.api";
+import { useAuthStore } from "../store/auth.store";
 
 export function AuthSessionInitializer({ children }: { children: ReactNode }) {
   const status = useAuthStore((state) => state.status);

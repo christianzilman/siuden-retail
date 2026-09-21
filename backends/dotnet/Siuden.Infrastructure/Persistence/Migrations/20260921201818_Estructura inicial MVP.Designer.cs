@@ -12,7 +12,7 @@ using Siuden.Infrastructure.Persistence;
 namespace Siuden.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SiudenRetailDbContext))]
-    [Migration("20260919035128_Estructura inicial MVP")]
+    [Migration("20260921201818_Estructura inicial MVP")]
     partial class EstructurainicialMVP
     {
         /// <inheritdoc />
@@ -347,6 +347,10 @@ namespace Siuden.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

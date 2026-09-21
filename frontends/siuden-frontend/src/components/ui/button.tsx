@@ -57,4 +57,6 @@ function Button({
   );
 }
 
+// The variant helper is intentionally colocated with the generated UI component.
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants };

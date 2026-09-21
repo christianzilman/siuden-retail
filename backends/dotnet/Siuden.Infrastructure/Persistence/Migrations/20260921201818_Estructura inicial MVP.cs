@@ -227,6 +227,7 @@ namespace Siuden.Infrastructure.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Url = table.Column<string>(type: "text", nullable: false),
+                    StorageKey = table.Column<string>(type: "text", nullable: false),
                     IsPrimary = table.Column<bool>(type: "boolean", nullable: false),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
                     ProductId = table.Column<long>(type: "bigint", nullable: false),

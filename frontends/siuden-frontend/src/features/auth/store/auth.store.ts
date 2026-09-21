@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { AuthSession, LoginResult } from "./types";
+import type { AuthSession, LoginResult } from "../types/auth.types";
 
 type AuthStatus = "checking" | "authenticated" | "anonymous";
 

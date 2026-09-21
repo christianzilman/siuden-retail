@@ -1,66 +1,71 @@
-import type { CSSProperties } from "react";
 import { useParams } from "react-router-dom";
 import { AnnouncementBar } from "../components/AnnouncementBar";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
-import { products } from "@/features/catalog/data/mocks";
 import { CategoryGrid } from "@/features/catalog/components/CategoryGrid";
 import { ProductGrid } from "@/features/catalog/components/ProductGrid";
 import { Benefits } from "../components/Benefits";
 import { WhatsappBanner } from "../components/WhatsappBanner";
 import { Footer } from "../components/Footer";
-import { MessageCircle } from "lucide-react";
+import { FloatingWhatsappButton } from "../components/FloatingWhatsappButton";
+import {
+  useCategories,
+  useProducts,
+  usePublicTenant,
+} from "@/features/catalog/hooks/use-catalog";
+import { productSort } from "@/features/catalog/types/catalog.types";
+import { storefrontTheme } from "../utils/storefront-theme";
 
 export const StorefrontPage = () => {
-  const theme = {
-    "--store-primary": "#74263A",
-    "--store-secondary": "#312A2B",
-    "--store-accent": "#B39155",
-    "--store-background": "#F8F6F1",
-    "--store-surface": "#FFFFFF",
-    "--store-text": "#292526",
-    "--store-muted": "#706869",
-    "--store-hairline": "#E5DED4",
-  } as CSSProperties;
-
   const { tenantSlug = "rubi" } = useParams();
+  const tenantQuery = usePublicTenant(tenantSlug);
+  const categoriesQuery = useCategories(tenantSlug);
+  const newestQuery = useProducts(tenantSlug, {
+    pageSize: 5,
+    sortBy: productSort.newest,
+  });
+  const categories = categoriesQuery.data ?? [];
+  const newestProducts = newestQuery.data?.items ?? [];
+  const tenantName = tenantQuery.data?.name ?? "Rubí";
+
   return (
     <div
-      style={theme}
+      style={storefrontTheme}
       className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[Georgia] text-[var(--store-text)]"
     >
       <AnnouncementBar />
-      <Header tenantSlug={tenantSlug} />
+      <Header
+        categories={categories}
+        products={newestProducts}
+        tenantName={tenantName}
+        tenantSlug={tenantSlug}
+      />
       <main>
-        <Hero />
-        <CategoryGrid tenantSlug={tenantSlug} />
+        <Hero tenantName={tenantName} tenantSlug={tenantSlug} />
+        <CategoryGrid
+          categories={categories}
+          loading={categoriesQuery.isLoading}
+          tenantSlug={tenantSlug}
+        />
         <div className="bg-white">
           <ProductGrid
             id="productos"
-            eyebrow="Elegidos para vos"
+            eyebrow="Lo último de la tienda"
             title="Productos destacados"
-            items={products.slice(0, 4)}
+            items={newestProducts}
+            loading={newestQuery.isLoading}
+            tenantSlug={tenantSlug}
           />
         </div>
         <Benefits />
-        <ProductGrid
-          id="novedades"
-          eyebrow="Catálogo Rubí"
-          title="Más piezas"
-          items={products.slice(4)}
-        />
         <WhatsappBanner />
       </main>
-      <Footer tenantSlug={tenantSlug} />
-      <a
-        className="fixed bottom-5 right-5 z-30 grid size-14 place-items-center rounded-full bg-[var(--store-primary)] text-white shadow-xl"
-        href="https://wa.me/5493816776136"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Consultar por WhatsApp"
-      >
-        <MessageCircle className="size-6" />
-      </a>
+      <Footer
+        categories={categories}
+        tenantName={tenantName}
+        tenantSlug={tenantSlug}
+      />
+      <FloatingWhatsappButton />
     </div>
   );
 };

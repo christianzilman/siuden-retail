@@ -1,8 +1,9 @@
 import { buttonVariants } from "@/components/ui/button";
-import { HERO_IMAGE } from "@/features/catalog/data/mocks";
+import { HERO_IMAGE } from "@/features/catalog/data/storefront-content";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export const Hero = () => {
+export const Hero = ({ tenantName, tenantSlug }: { tenantName: string; tenantSlug: string }) => {
   return (
     <section
       className="mx-auto w-[min(100%-2rem,86rem)] scroll-mt-32 py-5 sm:py-8 lg:py-12"
@@ -11,7 +12,7 @@ export const Hero = () => {
       <div className="grid overflow-hidden bg-white lg:grid-cols-[minmax(24rem,.9fr)_minmax(0,1.25fr)]">
         <div className="relative z-10 flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:-mr-16 lg:px-14 xl:-mr-24 xl:px-16">
           <p className="text-xs font-semibold uppercase tracking-[.2em] text-[var(--store-primary)]">
-            Selección Rubí · Tucumán
+            Selección {tenantName} · Tucumán
           </p>
           <h1 className="mt-5 max-w-[11ch] font-serif text-[clamp(3rem,6vw,6.5rem)] font-normal leading-[.9] tracking-[-.05em]">
             Joyas que acompañan tu historia
@@ -21,9 +22,9 @@ export const Hero = () => {
             a encontrar eso que querés recordar siempre.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <a className={buttonVariants()} href="#productos">
+            <Link className={buttonVariants()} to={`/${tenantSlug}/productos`}>
               Ver colección <ArrowRight className="size-4" />
-            </a>
+            </Link>
             <a
               className={buttonVariants({ variant: "secondary" })}
               href="https://wa.me/5493816776136"
@@ -45,7 +46,7 @@ export const Hero = () => {
             alt="Collar y aros dorados con piedras color rubí sobre una base clara"
           />
           <figcaption className="absolute bottom-6 right-6 bg-white/90 px-4 py-2 text-xs uppercase tracking-[.18em]">
-            Curaduría · Rubí
+            Curaduría · {tenantName}
           </figcaption>
         </figure>
       </div>

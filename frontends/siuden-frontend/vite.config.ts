@@ -6,6 +6,8 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET ?? "https://localhost:7053";
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -16,7 +18,12 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: env.VITE_API_PROXY_TARGET ?? "https://localhost:7053",
+          target: apiProxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        "/uploads": {
+          target: apiProxyTarget,
           changeOrigin: true,
           secure: false,
         },

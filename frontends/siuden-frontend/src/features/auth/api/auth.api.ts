@@ -1,6 +1,9 @@
 import { api, refreshAuthentication } from "@/services/http-client";
-import type { LoginValues, RegisterValues } from "./validations";
-import type { LoginResult } from "./types";
+import type {
+  LoginValues,
+  RegisterValues,
+} from "../validations/auth.validation";
+import type { LoginResult } from "../types/auth.types";
 
 export async function loginCustomer(tenantSlug: string, values: LoginValues) {
   const response = await api.post<LoginResult>(

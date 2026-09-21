@@ -1,17 +1,27 @@
-import { categories } from "@/features/catalog/data/mocks";
+import type { Category } from "@/features/catalog/types/catalog.types";
+import {
+  categoryProductsHref,
+  flattenCategories,
+} from "@/features/catalog/utils/catalog.utils";
 import { Camera, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const Footer = ({ tenantSlug }: { tenantSlug: string }) => {
+interface FooterProps {
+  categories: Category[];
+  tenantName: string;
+  tenantSlug: string;
+}
+
+export const Footer = ({ categories, tenantName, tenantSlug }: FooterProps) => {
   return (
     <footer className="bg-[var(--store-secondary)] text-white">
       <div className="mx-auto grid w-[min(100%-2rem,86rem)] gap-12 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_.8fr_.8fr_1.2fr] lg:py-20">
         <div>
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-full border border-[var(--store-accent)] font-serif text-xl italic">
-              R
+              {tenantName.trim().charAt(0).toLocaleUpperCase("es") || "S"}
             </span>
-            <span className="font-serif text-3xl tracking-[.08em]">Rubí</span>
+            <span className="font-serif text-3xl tracking-[.08em]">{tenantName}</span>
           </div>
           <p className="mt-5 max-w-xs text-sm leading-6 text-white/65">
             Joyas seleccionadas y atención personalizada desde San Miguel de
@@ -23,10 +33,10 @@ export const Footer = ({ tenantSlug }: { tenantSlug: string }) => {
             Navegación
           </h2>
           <nav className="mt-5 flex flex-col gap-3 text-sm text-white/70">
-            <a href="#inicio">Inicio</a>
-            <a href="#productos">Productos</a>
-            <a href="#novedades">Novedades</a>
-            <a href="#contacto">Contacto</a>
+            <Link to={`/${tenantSlug}#inicio`}>Inicio</Link>
+            <Link to={`/${tenantSlug}/productos`}>Productos</Link>
+            <Link to={`/${tenantSlug}#novedades`}>Novedades</Link>
+            <Link to={`/${tenantSlug}#contacto`}>Contacto</Link>
           </nav>
         </div>
         <div>
@@ -34,10 +44,10 @@ export const Footer = ({ tenantSlug }: { tenantSlug: string }) => {
             Categorías
           </h2>
           <nav className="mt-5 flex flex-col gap-3 text-sm text-white/70">
-            {categories.slice(0, 5).map((category) => (
+            {flattenCategories(categories).slice(0, 5).map((category) => (
               <Link
-                to={`/${tenantSlug}/categorias/${category.slug}`}
-                key={category.slug}
+                to={categoryProductsHref(tenantSlug, category)}
+                key={category.id}
               >
                 {category.name}
               </Link>
@@ -84,7 +94,7 @@ export const Footer = ({ tenantSlug }: { tenantSlug: string }) => {
       <div className="border-t border-white/10">
         <div className="mx-auto flex w-[min(100%-2rem,86rem)] flex-col gap-2 py-5 text-xs text-white/50 sm:flex-row sm:justify-between">
           <p>
-            © {new Date().getFullYear()} Rubí Joyería. Todos los derechos
+            © {new Date().getFullYear()} {tenantName}. Todos los derechos
             reservados.
           </p>
           <p>

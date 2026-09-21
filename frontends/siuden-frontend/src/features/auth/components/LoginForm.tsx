@@ -3,17 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Field } from "./Field";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { loginCustomer } from "../api";
-import { useAuthStore } from "../store";
-import { loginSchema, type LoginValues } from "../validations";
+import { loginCustomer } from "../api/auth.api";
+import { useAuthStore } from "../store/auth.store";
+import { loginSchema, type LoginValues } from "../validations/auth.validation";
 
-export const LoginForm = ({
-  tenantSlug,
-  onSuccess,
-}: {
+interface Props {
   tenantSlug: string;
   onSuccess: () => void;
-}) => {
+}
+
+export const LoginForm = ({ tenantSlug, onSuccess }: Props) => {
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const {
     register,

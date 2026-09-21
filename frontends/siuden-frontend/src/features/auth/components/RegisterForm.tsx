@@ -3,9 +3,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Field } from "./Field";
 import { Button } from "@/components/ui/button";
-import { registerSchema, type RegisterValues } from "../validations";
-import { loginCustomer, registerCustomer } from "../api";
-import { useAuthStore } from "../store";
+import {
+  registerSchema,
+  type RegisterValues,
+} from "../validations/auth.validation";
+import { loginCustomer, registerCustomer } from "../api/auth.api";
+import { useAuthStore } from "../store/auth.store";
 import { toast } from "sonner";
 
 export const RegisterForm = ({
