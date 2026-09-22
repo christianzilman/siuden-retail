@@ -55,7 +55,12 @@ export const ProductGrid = ({
       ) : (
         <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {items.map((product, index) => (
-            <ProductCard index={index} key={product.id} product={product} />
+            <ProductCard
+              index={index}
+              key={product.id}
+              product={product}
+              tenantSlug={tenantSlug}
+            />
           ))}
         </div>
       )}

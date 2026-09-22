@@ -182,9 +182,9 @@ export const Header = ({
               </div>
               <div className="grid sm:grid-cols-2">
                 {results.map((product) => (
-                  <a
+                  <Link
                     className="flex justify-between border-b py-3 text-sm"
-                    href={`#producto-${product.id}`}
+                    to={`/${tenantSlug}/productos/${product.slug}`}
                     key={product.id}
                     onClick={() => setSearchOpen(false)}
                   >
@@ -195,7 +195,7 @@ export const Header = ({
                       </small>
                     </span>
                     <span>{formatPrice(product.price)}</span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

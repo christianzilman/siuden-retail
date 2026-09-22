@@ -15,6 +15,21 @@ namespace Siuden.Api.Controllers;
 [Route("api/products")]
 public class ProductsController(IMediator mediator) : ControllerBase
 {
+    [HttpGet("{tenantSlug}/{productSlug}")]
+    [ProducesResponseType(typeof(PublicProductDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PublicProductDetailDto>> GetBySlug(
+        [FromRoute] string tenantSlug,
+        [FromRoute] string productSlug,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+            new GetPublicProductBySlugQuery(tenantSlug, productSlug),
+            cancellationToken);
+
+        return Ok(result);
+    }
+
     [HttpGet("{tenantSlug}")]
     [ProducesResponseType(typeof(PagedResponse<ProductListItemDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

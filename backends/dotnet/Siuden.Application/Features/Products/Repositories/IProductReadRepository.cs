@@ -24,4 +24,9 @@ public interface IProductReadRepository : IAsyncRepository<Product, long>
         Guid tenantId,
         long productId,
         CancellationToken cancellationToken);
+
+    Task<PublicProductDetailDto?> GetPublicBySlugAsync(
+        string tenantSlug,
+        string productSlug,
+        CancellationToken cancellationToken);
 }

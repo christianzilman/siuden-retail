@@ -19,6 +19,41 @@ export interface Product {
   createdAt: string;
 }
 
+export interface ProductDetail {
+  id: number;
+  name: string;
+  description: string | null;
+  slug: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  variants: ProductVariant[];
+  categories: ProductCategory[];
+  images: ProductImage[];
+}
+
+export interface ProductVariant {
+  id: number;
+  variantName: string;
+  sku: string | null;
+  stock: number;
+  price: number;
+}
+
+export interface ProductCategory {
+  categoryId: string;
+  name: string;
+  slug: string;
+  isPrimary: boolean;
+  sortOrder: number;
+}
+
+export interface ProductImage {
+  id: number;
+  url: string;
+  isPrimary: boolean;
+  sortOrder: number;
+}
+
 export interface PagedResponse<T> {
   items: T[];
   pageNumber: number;

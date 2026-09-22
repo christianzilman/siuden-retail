@@ -45,6 +45,17 @@ public class ProductService(
             cancellationToken);
     }
 
+    public Task<PublicProductDetailDto?> GetPublicBySlugAsync(
+        string tenantSlug,
+        string productSlug,
+        CancellationToken cancellationToken = default)
+    {
+        return productReadRepository.GetPublicBySlugAsync(
+            tenantSlug,
+            productSlug,
+            cancellationToken);
+    }
+
     public async Task<long> CreateAsync(
         CreateProductData data,
         CancellationToken cancellationToken = default)

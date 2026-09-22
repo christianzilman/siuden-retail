@@ -23,6 +23,10 @@ public interface IProductService
         Guid tenantId,
         long productId,
         CancellationToken cancellationToken = default);
+    Task<PublicProductDetailDto?> GetPublicBySlugAsync(
+        string tenantSlug,
+        string productSlug,
+        CancellationToken cancellationToken = default);
     Task<long> CreateAsync(
         CreateProductData product,
         CancellationToken cancellationToken = default);

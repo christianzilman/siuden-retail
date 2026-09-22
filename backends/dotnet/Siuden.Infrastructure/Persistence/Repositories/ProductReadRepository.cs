@@ -171,4 +171,60 @@ public class ProductReadRepository : RepositoryBase<Product, long>, IProductRead
             })
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<PublicProductDetailDto?> GetPublicBySlugAsync(
+        string tenantSlug,
+        string productSlug,
+        CancellationToken cancellationToken)
+    {
+        return await Context.Products
+            .AsNoTracking()
+            .Where(x =>
+                x.Tenant.Slug == tenantSlug &&
+                x.Slug == productSlug &&
+                x.Status == Siuden.Domain.Enums.ProductStatusEnum.PUBLISHED &&
+                x.ProductVariants.Any())
+            .Select(x => new PublicProductDetailDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                Slug = x.Slug,
+                SeoTitle = x.SeoTitle,
+                SeoDescription = x.SeoDescription,
+                Variants = x.ProductVariants
+                    .OrderBy(v => v.Id)
+                    .Select(v => new PublicProductVariantDto
+                    {
+                        Id = v.Id,
+                        VariantName = v.VariantName,
+                        Sku = v.Sku,
+                        Stock = v.Stock,
+                        Price = v.Price
+                    })
+                    .ToList(),
+                Categories = x.ProductCategories
+                    .OrderBy(pc => pc.SortOrder)
+                    .Select(pc => new PublicProductCategoryDto
+                    {
+                        CategoryId = pc.CategoryId,
+                        Name = pc.Category.Name,
+                        Slug = pc.Category.Slug,
+                        IsPrimary = pc.IsPrimary,
+                        SortOrder = pc.SortOrder
+                    })
+                    .ToList(),
+                Images = x.ProductImages
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new ProductImageDto
+                    {
+                        Id = i.Id,
+                        Url = i.Url,
+                        IsPrimary = i.IsPrimary,
+                        SortOrder = i.SortOrder
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

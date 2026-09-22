@@ -2,17 +2,22 @@ import type { Product } from "@/features/catalog/types/catalog.types";
 import { getProductImageUrl } from "@/features/catalog/utils/catalog.utils";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   index: number;
   product: Product;
+  tenantSlug: string;
 }
 
-export function ProductCard({ index, product }: ProductCardProps) {
+export function ProductCard({ index, product, tenantSlug }: ProductCardProps) {
   return (
     <article id={`producto-${product.id}`}>
-      <div className="group relative aspect-[4/5] overflow-hidden bg-white">
+      <Link
+        aria-label={`Ver detalle de ${product.name}`}
+        className="group relative block aspect-[4/5] overflow-hidden bg-white"
+        to={`/${tenantSlug}/productos/${product.slug}`}
+      >
         <img
           className={cn(
             "size-full object-cover transition duration-700 group-hover:scale-105",
@@ -28,7 +33,7 @@ export function ProductCard({ index, product }: ProductCardProps) {
             Nuevo
           </span>
         ) : null}
-      </div>
+      </Link>
       <div className="pt-4">
         <div className="flex flex-col justify-between gap-2 sm:flex-row">
           <div>
@@ -36,7 +41,12 @@ export function ProductCard({ index, product }: ProductCardProps) {
               Catálogo online
             </p>
             <h3 className="mt-1 font-serif text-xl sm:text-2xl">
-              {product.name}
+              <Link
+                className="hover:text-[var(--store-primary)]"
+                to={`/${tenantSlug}/productos/${product.slug}`}
+              >
+                {product.name}
+              </Link>
             </h3>
           </div>
           <span
@@ -49,15 +59,12 @@ export function ProductCard({ index, product }: ProductCardProps) {
           </span>
         </div>
         <p className="mt-3 font-medium">{formatPrice(product.price)}</p>
-        <details className="mt-3 border-t border-[var(--store-hairline)] pt-3">
-          <summary className="flex cursor-pointer list-none items-center justify-between text-sm">
-            Ver detalle <ChevronDown className="size-4" />
-          </summary>
-          <p className="pt-3 text-sm leading-6 text-[var(--store-muted)]">
-            {product.description ||
-              "Consultanos para conocer detalles, variantes y disponibilidad."}
-          </p>
-        </details>
+        <Link
+          className="mt-3 block border-t border-[var(--store-hairline)] pt-3 text-sm hover:text-[var(--store-primary)]"
+          to={`/${tenantSlug}/productos/${product.slug}`}
+        >
+          Ver detalle
+        </Link>
       </div>
     </article>
   );

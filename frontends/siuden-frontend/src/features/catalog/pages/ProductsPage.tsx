@@ -270,6 +270,7 @@ export function ProductsPage() {
                     index={index}
                     key={product.id}
                     product={product}
+                    tenantSlug={tenantSlug}
                   />
                 ))}
               </div>

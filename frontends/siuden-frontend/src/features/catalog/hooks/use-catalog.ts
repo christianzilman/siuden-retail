@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getCategories,
+  getProduct,
   getProducts,
   getPublicTenant,
 } from "../api/catalog.api";
@@ -12,6 +13,15 @@ export function usePublicTenant(tenantSlug: string) {
     queryKey: ["public-tenant", tenantSlug],
     queryFn: () => getPublicTenant(tenantSlug),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useProduct(tenantSlug: string, productSlug: string) {
+  return useQuery({
+    queryKey: ["storefront-product", tenantSlug, productSlug],
+    queryFn: () => getProduct(tenantSlug, productSlug),
+    enabled: Boolean(tenantSlug && productSlug),
+    staleTime: 60 * 1000,
   });
 }
 

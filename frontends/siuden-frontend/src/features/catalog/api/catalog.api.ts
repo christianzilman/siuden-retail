@@ -3,12 +3,20 @@ import type {
   Category,
   PagedResponse,
   Product,
+  ProductDetail,
   ProductSort,
   PublicTenant,
 } from "../types/catalog.types";
 
 export async function getPublicTenant(tenantSlug: string) {
   const response = await api.get<PublicTenant>(`/api/tenants/${tenantSlug}`);
+  return response.data;
+}
+
+export async function getProduct(tenantSlug: string, productSlug: string) {
+  const response = await api.get<ProductDetail>(
+    `/api/products/${tenantSlug}/${productSlug}`,
+  );
   return response.data;
 }
 
