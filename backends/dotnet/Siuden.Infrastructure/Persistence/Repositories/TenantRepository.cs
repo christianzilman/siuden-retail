@@ -37,4 +37,14 @@ public sealed class TenantRepository : ITenantRepository
             tenant.Status == TenantStatusEnum.ACTIVE,
             cancellationToken);
     }
+
+    public Task<Tenant?> GetByIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        return _context.Tenants.SingleOrDefaultAsync(tenant => tenant.Id == tenantId, cancellationToken);
+    }
+
+    public async Task UpdateAsync(Tenant tenant, CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

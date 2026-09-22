@@ -11,6 +11,8 @@
 
 BEGIN;
 
+-- Configuración visual y comercial incorporada al Tenant para el MVP. 
+
 -- Estados (enteros): Account ACTIVE = 1, Tenant ACTIVE = 1, User ACTIVE = 1,
 -- AccountMember ACTIVE = 1.
 INSERT INTO "Accounts" ("Id", "Name", "Status", "CreatedAt")
@@ -26,13 +28,39 @@ ON CONFLICT ("Id") DO UPDATE SET
     "UpdatedAt" = CURRENT_TIMESTAMP;
 
 INSERT INTO "Tenants" (
-    "Id", "AccountId", "Name", "Slug", "Status", "CreatedAt"
+    "Id", "AccountId", "Name", "Slug", "BrandName", "ContactEmail",
+    "Phone", "AddressLine", "AddressNumber", "City", "Province",
+    "PostalCode", "CountryCode", "PrimaryColor", "SecondaryColor",
+    "BackgroundColor", "TextColor", "HeadingFont", "BodyFont",
+    "BorderRadius", "AnnouncementEnabled", "AnnouncementText",
+    "AnnouncementUrl", "FaviconUrl", "LogoUrl", "Status", "CreatedAt"
 )
 VALUES (
     '22222222-2222-4222-8222-222222222222',
     '11111111-1111-4111-8111-111111111111',
     'Rubi Joyeria',
     'rubi',
+    'RUBI JOYERIA',
+    'rubi.joyeria803@gmail.com',
+    '3816776136',
+    'Mendoza',
+    '803',
+    'San Miguel de Tucumán',
+    'Tucumán',
+    '4000',
+    'AR',
+    '#74263A',
+    '#312A2B',
+    '#F8F6F1',
+    '#292526',
+    'Georgia, serif',
+    'Georgia, serif',
+    '0.625rem',
+    TRUE,
+    'Envío gratis a todo San Miguel de Tucumán',
+    'https://www.instagram.com/rubijoyerias',
+    '/images/rubi-favicon.png',
+    NULL,
     1,
     CURRENT_TIMESTAMP
 )
@@ -40,6 +68,27 @@ ON CONFLICT ("Id") DO UPDATE SET
     "AccountId" = EXCLUDED."AccountId",
     "Name" = EXCLUDED."Name",
     "Slug" = EXCLUDED."Slug",
+    "BrandName" = EXCLUDED."BrandName",
+    "ContactEmail" = EXCLUDED."ContactEmail",
+    "Phone" = EXCLUDED."Phone",
+    "AddressLine" = EXCLUDED."AddressLine",
+    "AddressNumber" = EXCLUDED."AddressNumber",
+    "City" = EXCLUDED."City",
+    "Province" = EXCLUDED."Province",
+    "PostalCode" = EXCLUDED."PostalCode",
+    "CountryCode" = EXCLUDED."CountryCode",
+    "PrimaryColor" = EXCLUDED."PrimaryColor",
+    "SecondaryColor" = EXCLUDED."SecondaryColor",
+    "BackgroundColor" = EXCLUDED."BackgroundColor",
+    "TextColor" = EXCLUDED."TextColor",
+    "HeadingFont" = EXCLUDED."HeadingFont",
+    "BodyFont" = EXCLUDED."BodyFont",
+    "BorderRadius" = EXCLUDED."BorderRadius",
+    "AnnouncementEnabled" = EXCLUDED."AnnouncementEnabled",
+    "AnnouncementText" = EXCLUDED."AnnouncementText",
+    "AnnouncementUrl" = EXCLUDED."AnnouncementUrl",
+    "FaviconUrl" = EXCLUDED."FaviconUrl",
+    "LogoUrl" = EXCLUDED."LogoUrl",
     "Status" = EXCLUDED."Status",
     "UpdatedAt" = CURRENT_TIMESTAMP;
 

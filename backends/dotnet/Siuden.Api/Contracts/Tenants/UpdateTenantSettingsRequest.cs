@@ -1,10 +1,7 @@
-namespace Siuden.Application.Features.Tenants.DTOs;
+namespace Siuden.Api.Contracts.Tenants;
 
-public sealed class PublicTenantDto
+public sealed class UpdateTenantSettingsRequest
 {
-    public Guid Id { get; init; }
-    public string Slug { get; init; } = string.Empty;
-    public string Name { get; init; } = string.Empty;
     public string BrandName { get; init; } = string.Empty;
     public string ContactEmail { get; init; } = string.Empty;
     public string Phone { get; init; } = string.Empty;

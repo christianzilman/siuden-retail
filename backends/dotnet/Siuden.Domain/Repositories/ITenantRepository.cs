@@ -12,4 +12,8 @@ public interface ITenantRepository
         Guid tenantId,
         Guid accountId,
         CancellationToken cancellationToken = default);
+
+    Task<Tenant?> GetByIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Tenant tenant, CancellationToken cancellationToken = default);
 }

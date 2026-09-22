@@ -1,8 +1,12 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Heart } from "lucide-react";
+import type { PublicTenant } from "@/features/catalog/types/catalog.types";
+import { getWhatsappUrl } from "../utils/storefront-theme";
 
-export const WhatsappBanner = () => {
+export const WhatsappBanner = ({ tenant }: { tenant?: PublicTenant }) => {
+  const whatsappUrl = getWhatsappUrl(tenant);
+  if (!whatsappUrl) return null;
   return (
     <section
       className="mx-auto w-[min(100%-2rem,86rem)] py-16 sm:py-20 lg:py-28"
@@ -26,7 +30,7 @@ export const WhatsappBanner = () => {
             buttonVariants({ variant: "light" }),
             "relative z-10 mt-9 lg:mt-0",
           )}
-          href="https://wa.me/5493816776136"
+          href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
         >

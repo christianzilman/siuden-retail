@@ -1,18 +1,27 @@
-import type { Category } from "@/features/catalog/types/catalog.types";
+import type { Category, PublicTenant } from "@/features/catalog/types/catalog.types";
 import {
   categoryProductsHref,
   flattenCategories,
 } from "@/features/catalog/utils/catalog.utils";
 import { Camera, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getWhatsappUrl } from "../utils/storefront-theme";
 
 interface FooterProps {
   categories: Category[];
   tenantName: string;
   tenantSlug: string;
+  tenant?: PublicTenant;
 }
 
-export const Footer = ({ categories, tenantName, tenantSlug }: FooterProps) => {
+export const Footer = ({ categories, tenant, tenantName, tenantSlug }: FooterProps) => {
+  const whatsappUrl = getWhatsappUrl(tenant);
+  const street = [tenant?.addressLine, tenant?.addressNumber]
+    .filter(Boolean)
+    .join(" ");
+  const address = [street, tenant?.city, tenant?.province]
+    .filter(Boolean)
+    .join(", ");
   return (
     <footer className="bg-[var(--store-secondary)] text-white">
       <div className="mx-auto grid w-[min(100%-2rem,86rem)] gap-12 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_.8fr_.8fr_1.2fr] lg:py-20">
@@ -58,10 +67,12 @@ export const Footer = ({ categories, tenantName, tenantSlug }: FooterProps) => {
           <h2 className="text-xs font-semibold uppercase tracking-[.16em]">
             Encontranos
           </h2>
-          <p className="mt-5 flex gap-3 text-sm leading-6 text-white/70">
-            <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--store-accent)]" />{" "}
-            Mendoza 803, San Miguel de Tucumán, Tucumán
-          </p>
+          {address ? (
+            <p className="mt-5 flex gap-3 text-sm leading-6 text-white/70">
+              <MapPin className="mt-0.5 size-4 shrink-0 text-[var(--store-accent)]" />{" "}
+              {address}
+            </p>
+          ) : null}
           <div className="mt-6 flex gap-3">
             <a
               className="grid size-11 place-items-center rounded-full border border-white/25"
@@ -72,22 +83,24 @@ export const Footer = ({ categories, tenantName, tenantSlug }: FooterProps) => {
             >
               <Camera className="size-5" />
             </a>
-            <a
+            {whatsappUrl ? (
+              <a
               className="grid size-11 place-items-center rounded-full border border-white/25"
-              href="https://wa.me/5493816776136"
+              href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
               aria-label="WhatsApp"
             >
               <MessageCircle className="size-5" />
-            </a>
+              </a>
+            ) : null}
           </div>
           <div className="mt-5 flex flex-wrap gap-4 text-sm text-white/70">
             <a href="https://www.facebook.com/rubijoyerias">Facebook</a>
             <a href="https://www.tiktok.com/@rubijoyerias">@rubijoyerias</a>
-            <a href="mailto:rubi.joyeria803@gmail.com">
-              rubi.joyeria803@gmail.com
-            </a>
+            {tenant?.contactEmail ? (
+              <a href={`mailto:${tenant.contactEmail}`}>{tenant.contactEmail}</a>
+            ) : null}
           </div>
         </div>
       </div>

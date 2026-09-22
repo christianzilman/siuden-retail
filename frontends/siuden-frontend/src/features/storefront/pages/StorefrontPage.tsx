@@ -14,7 +14,8 @@ import {
   usePublicTenant,
 } from "@/features/catalog/hooks/use-catalog";
 import { productSort } from "@/features/catalog/types/catalog.types";
-import { storefrontTheme } from "../utils/storefront-theme";
+import { getStorefrontTheme } from "../utils/storefront-theme";
+import { useTenantDocument } from "../hooks/use-tenant-document";
 
 export const StorefrontPage = () => {
   const { tenantSlug = "rubi" } = useParams();
@@ -26,22 +27,25 @@ export const StorefrontPage = () => {
   });
   const categories = categoriesQuery.data ?? [];
   const newestProducts = newestQuery.data?.items ?? [];
-  const tenantName = tenantQuery.data?.name ?? "Rubí";
+  const tenant = tenantQuery.data;
+  const tenantName = tenant?.brandName || tenant?.name || "Tienda";
+  useTenantDocument(tenant);
 
   return (
     <div
-      style={storefrontTheme}
-      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[Georgia] text-[var(--store-text)]"
+      style={getStorefrontTheme(tenant)}
+      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[var(--store-body-font)] text-[var(--store-text)] [&_.font-serif]:font-[var(--store-heading-font)]"
     >
-      <AnnouncementBar />
+      <AnnouncementBar tenant={tenant} />
       <Header
         categories={categories}
         products={newestProducts}
         tenantName={tenantName}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
       <main>
-        <Hero tenantName={tenantName} tenantSlug={tenantSlug} />
+        <Hero tenant={tenant} tenantName={tenantName} tenantSlug={tenantSlug} />
         <CategoryGrid
           categories={categories}
           loading={categoriesQuery.isLoading}
@@ -58,14 +62,15 @@ export const StorefrontPage = () => {
           />
         </div>
         <Benefits />
-        <WhatsappBanner />
+        <WhatsappBanner tenant={tenant} />
       </main>
       <Footer
         categories={categories}
         tenantName={tenantName}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
-      <FloatingWhatsappButton />
+      <FloatingWhatsappButton tenant={tenant} />
     </div>
   );
 };

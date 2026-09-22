@@ -2,8 +2,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { HERO_IMAGE } from "@/features/catalog/data/storefront-content";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import type { PublicTenant } from "@/features/catalog/types/catalog.types";
+import { getWhatsappUrl } from "../utils/storefront-theme";
 
-export const Hero = ({ tenantName, tenantSlug }: { tenantName: string; tenantSlug: string }) => {
+export const Hero = ({ tenant, tenantName, tenantSlug }: { tenant?: PublicTenant; tenantName: string; tenantSlug: string }) => {
+  const whatsappUrl = getWhatsappUrl(tenant);
   return (
     <section
       className="mx-auto w-[min(100%-2rem,86rem)] scroll-mt-32 py-5 sm:py-8 lg:py-12"
@@ -25,14 +28,14 @@ export const Hero = ({ tenantName, tenantSlug }: { tenantName: string; tenantSlu
             <Link className={buttonVariants()} to={`/${tenantSlug}/productos`}>
               Ver colección <ArrowRight className="size-4" />
             </Link>
-            <a
+            {whatsappUrl ? <a
               className={buttonVariants({ variant: "secondary" })}
-              href="https://wa.me/5493816776136"
+              href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
             >
               Consultar por WhatsApp
-            </a>
+            </a> : null}
           </div>
           <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[.18em] text-[var(--store-muted)]">
             <span className="h-px w-9 bg-[var(--store-accent)]" /> Atención

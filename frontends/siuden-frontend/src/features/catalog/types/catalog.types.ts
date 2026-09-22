@@ -68,6 +68,27 @@ export interface PublicTenant {
   id: string;
   slug: string;
   name: string;
+  brandName: string;
+  contactEmail: string;
+  phone: string;
+  addressLine: string;
+  addressNumber: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  countryCode: string;
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundColor: string;
+  textColor: string;
+  headingFont: string;
+  bodyFont: string;
+  borderRadius: string;
+  announcementEnabled: boolean;
+  announcementText: string;
+  announcementUrl: string | null;
+  faviconUrl: string | null;
+  logoUrl: string | null;
 }
 
 export const productSort = {

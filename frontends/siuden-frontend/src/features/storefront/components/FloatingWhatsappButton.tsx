@@ -1,11 +1,15 @@
-const WHATSAPP_PHONE = "5493816776136";
+import type { PublicTenant } from "@/features/catalog/types/catalog.types";
+import { getWhatsappUrl } from "../utils/storefront-theme";
 
-export function FloatingWhatsappButton() {
+export function FloatingWhatsappButton({ tenant }: { tenant?: PublicTenant }) {
+  const whatsappUrl = getWhatsappUrl(tenant);
+  if (!whatsappUrl) return null;
+
   return (
     <a
       aria-label="Consultar por WhatsApp"
       className="fixed bottom-5 right-5 z-30 grid size-14 place-items-center rounded-full bg-[#25D366] text-white shadow-xl transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#25D366]/40"
-      href={`https://wa.me/${WHATSAPP_PHONE}`}
+      href={whatsappUrl}
       rel="noreferrer"
       target="_blank"
     >

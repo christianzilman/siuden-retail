@@ -1,5 +1,5 @@
 import { AuthDialog } from "@/features/auth/components/AuthDialog";
-import type { Category, Product } from "@/features/catalog/types/catalog.types";
+import type { Category, Product, PublicTenant } from "@/features/catalog/types/catalog.types";
 import {
   categoryProductsHref,
   flattenCategories,
@@ -48,6 +48,7 @@ interface HeaderProps {
   products: Product[];
   tenantName: string;
   tenantSlug: string;
+  tenant?: PublicTenant;
 }
 
 export const Header = ({
@@ -55,6 +56,7 @@ export const Header = ({
   products,
   tenantName,
   tenantSlug,
+  tenant,
 }: HeaderProps) => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -114,9 +116,13 @@ export const Header = ({
             className="flex items-center gap-3"
             to={`/${tenantSlug}#inicio`}
           >
-            <span className="grid size-9 place-items-center rounded-full border border-[var(--store-accent)] font-serif text-xl italic text-[var(--store-primary)]">
-              {tenantName.trim().charAt(0).toLocaleUpperCase("es") || "S"}
-            </span>
+            {tenant?.logoUrl ? (
+              <img className="size-10 object-contain" src={tenant.logoUrl} alt="" />
+            ) : (
+              <span className="grid size-9 place-items-center rounded-full border border-[var(--store-accent)] font-serif text-xl italic text-[var(--store-primary)]">
+                {tenantName.trim().charAt(0).toLocaleUpperCase("es") || "S"}
+              </span>
+            )}
             <span className="font-serif text-3xl tracking-[.08em]">
               {tenantName}
             </span>
@@ -246,6 +252,7 @@ export const Header = ({
         }}
         initialView={auth ?? "login"}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
     </>
   );

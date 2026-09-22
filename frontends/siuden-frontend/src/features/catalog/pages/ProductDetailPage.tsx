@@ -4,7 +4,8 @@ import { AnnouncementBar } from "@/features/storefront/components/AnnouncementBa
 import { FloatingWhatsappButton } from "@/features/storefront/components/FloatingWhatsappButton";
 import { Footer } from "@/features/storefront/components/Footer";
 import { Header } from "@/features/storefront/components/Header";
-import { storefrontTheme } from "@/features/storefront/utils/storefront-theme";
+import { getStorefrontTheme } from "@/features/storefront/utils/storefront-theme";
+import { useTenantDocument } from "@/features/storefront/hooks/use-tenant-document";
 import { formatPrice } from "@/lib/format";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -16,7 +17,9 @@ export function ProductDetailPage() {
   const categoriesQuery = useCategories(tenantSlug);
   const productQuery = useProduct(tenantSlug, productSlug);
   const product = productQuery.data;
-  const tenantName = tenantQuery.data?.name ?? "Tienda";
+  const tenant = tenantQuery.data;
+  const tenantName = tenant?.brandName || tenant?.name || "Tienda";
+  useTenantDocument(tenant);
   const [selectedVariantId, setSelectedVariantId] = useState<number>();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -80,15 +83,16 @@ export function ProductDetailPage() {
 
   return (
     <div
-      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[Georgia] text-[var(--store-text)]"
-      style={storefrontTheme}
+      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[var(--store-body-font)] text-[var(--store-text)] [&_.font-serif]:font-[var(--store-heading-font)]"
+      style={getStorefrontTheme(tenant)}
     >
-      <AnnouncementBar />
+      <AnnouncementBar tenant={tenant} />
       <Header
         categories={categoriesQuery.data ?? []}
         products={headerProducts}
         tenantName={tenantName}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
 
       <main className="mx-auto w-[min(100%-2rem,76rem)] py-8 sm:py-12 lg:py-16">
@@ -210,8 +214,8 @@ export function ProductDetailPage() {
         )}
       </main>
 
-      <Footer categories={categoriesQuery.data ?? []} tenantName={tenantName} tenantSlug={tenantSlug} />
-      <FloatingWhatsappButton />
+      <Footer categories={categoriesQuery.data ?? []} tenant={tenant} tenantName={tenantName} tenantSlug={tenantSlug} />
+      <FloatingWhatsappButton tenant={tenant} />
 
       {galleryOpen ? (
         <div

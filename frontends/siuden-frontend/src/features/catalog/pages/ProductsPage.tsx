@@ -16,7 +16,8 @@ import {
 import { AnnouncementBar } from "@/features/storefront/components/AnnouncementBar";
 import { Footer } from "@/features/storefront/components/Footer";
 import { Header } from "@/features/storefront/components/Header";
-import { storefrontTheme } from "@/features/storefront/utils/storefront-theme";
+import { getStorefrontTheme } from "@/features/storefront/utils/storefront-theme";
+import { useTenantDocument } from "@/features/storefront/hooks/use-tenant-document";
 import { FloatingWhatsappButton } from "@/features/storefront/components/FloatingWhatsappButton";
 import { useEffect, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -62,7 +63,9 @@ export function ProductsPage() {
   });
   const products = productsQuery.data?.items ?? [];
   const totalPages = Math.max(productsQuery.data?.totalPages ?? 1, 1);
-  const tenantName = tenantQuery.data?.name ?? "Rubí";
+  const tenant = tenantQuery.data;
+  const tenantName = tenant?.brandName || tenant?.name || "Tienda";
+  useTenantDocument(tenant);
 
   useEffect(() => {
     if (productsQuery.data && page > totalPages) {
@@ -97,15 +100,16 @@ export function ProductsPage() {
 
   return (
     <div
-      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[Georgia] text-[var(--store-text)]"
-      style={storefrontTheme}
+      className="min-h-screen overflow-x-clip bg-[var(--store-background)] font-[var(--store-body-font)] text-[var(--store-text)] [&_.font-serif]:font-[var(--store-heading-font)]"
+      style={getStorefrontTheme(tenant)}
     >
-      <AnnouncementBar />
+      <AnnouncementBar tenant={tenant} />
       <Header
         categories={categoriesQuery.data ?? []}
         products={products}
         tenantName={tenantName}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
 
       <main
@@ -334,8 +338,9 @@ export function ProductsPage() {
         categories={categoriesQuery.data ?? []}
         tenantName={tenantName}
         tenantSlug={tenantSlug}
+        tenant={tenant}
       />
-      <FloatingWhatsappButton />
+      <FloatingWhatsappButton tenant={tenant} />
     </div>
   );
 }
