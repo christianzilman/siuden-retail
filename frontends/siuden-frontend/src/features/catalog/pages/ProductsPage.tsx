@@ -109,7 +109,7 @@ export function ProductsPage() {
       />
 
       <main
-        className="mx-auto w-[min(100%-2rem,86rem)] py-6 sm:py-8 lg:py-10"
+        className="mx-auto w-[min(100%-2rem,86rem)] scroll-mt-32 py-6 sm:py-8 lg:py-10"
         id="catalogo"
       >
         <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-start sm:justify-between sm:gap-8">

@@ -34,7 +34,7 @@ export const Footer = ({ categories, tenantName, tenantSlug }: FooterProps) => {
           </h2>
           <nav className="mt-5 flex flex-col gap-3 text-sm text-white/70">
             <Link to={`/${tenantSlug}#inicio`}>Inicio</Link>
-            <Link to={`/${tenantSlug}/productos`}>Productos</Link>
+            <Link to={`/${tenantSlug}/productos#catalogo`}>Productos</Link>
             <Link to={`/${tenantSlug}#novedades`}>Novedades</Link>
             <Link to={`/${tenantSlug}#contacto`}>Contacto</Link>
           </nav>
